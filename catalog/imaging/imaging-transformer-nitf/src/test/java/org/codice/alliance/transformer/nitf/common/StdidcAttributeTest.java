@@ -32,6 +32,7 @@ public class StdidcAttributeTest {
     @Before
     public void setup() {
         tre = mock(Tre.class);
+        System.setProperty("karaf.etc", "");
     }
 
     @Test
@@ -46,11 +47,22 @@ public class StdidcAttributeTest {
     }
 
     @Test
+    public void testMultiIso3Codes() throws Exception {
+        when(tre.getFieldValue(StdidcAttribute.COUNTRY_SHORT_NAME)).thenReturn("WE");
+        Serializable actual = StdidcAttribute.COUNTRY_ALPHA3_ATTRIBUTE.getAccessorFunction()
+                .apply(tre);
+        assertThat(actual, is("PSE"));
+        actual = StdidcAttribute.COUNTRY_ATTRIBUTE.getAccessorFunction()
+                .apply(tre);
+        assertThat(actual, is("WE"));
+    }
+
+    @Test
     public void testInvalidCountryCode() throws Exception {
         when(tre.getFieldValue(StdidcAttribute.COUNTRY_SHORT_NAME)).thenReturn("0");
         Serializable actual = StdidcAttribute.COUNTRY_ALPHA3_ATTRIBUTE.getAccessorFunction()
                 .apply(tre);
-        assertThat(actual, is("0"));
+        assertThat(actual, nullValue());
         actual = StdidcAttribute.COUNTRY_ATTRIBUTE.getAccessorFunction()
                 .apply(tre);
         assertThat(actual, is("0"));
