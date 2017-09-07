@@ -319,7 +319,7 @@ public class BannerMarkings implements Serializable {
 
     private List<String> jointAuthorities;
 
-    private List<String> usFgiCountryCodes = null;
+    private List<String> usFgiCountryCodes;
 
     private List<SciControl> sciControls;
 
@@ -331,7 +331,7 @@ public class BannerMarkings implements Serializable {
 
     private Boolean doeUcni = null;
 
-    private List<DissemControl> disseminationControls = null;
+    private List<DissemControl> disseminationControls;
 
     // 10.e.
     private List<String> relTo;
@@ -339,11 +339,11 @@ public class BannerMarkings implements Serializable {
     // 10.g.
     private List<String> displayOnly;
 
-    private List<OtherDissemControl> otherDissemControl = null;
+    private List<OtherDissemControl> otherDissemControl;
 
     // ACCS
     // 11.b.
-    private List<String> accm = null;
+    private List<String> accm;
 
     private BannerMarkings(MarkingType type, String classificationSegment, String inputMarkings)
             throws MarkingsValidationException {

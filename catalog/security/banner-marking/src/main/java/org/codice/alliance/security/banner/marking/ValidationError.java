@@ -13,7 +13,9 @@
  */
 package org.codice.alliance.security.banner.marking;
 
-public class ValidationError {
+import java.io.Serializable;
+
+public class ValidationError implements Serializable {
     private final String message;
 
     private final String appendix;
