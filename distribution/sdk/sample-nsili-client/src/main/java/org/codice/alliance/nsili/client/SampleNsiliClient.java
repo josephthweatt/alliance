@@ -169,7 +169,7 @@ public class SampleNsiliClient {
 
     private List<TestNsiliCallback> callbacks = new ArrayList<>();
 
-    public List<TestNsiliStandingQueryCallback> standingQueryCallbacks = new ArrayList<>();
+    private List<TestNsiliStandingQueryCallback> standingQueryCallbacks = new ArrayList<>();
 
     private SubmitStandingQueryRequest standingQueryRequest = null;
 
@@ -855,7 +855,7 @@ public class SampleNsiliClient {
             BufferedInputStream inputStream = new BufferedInputStream(fileDownload.openStream());
             myString = IOUtils.toString(inputStream, "UTF-8");
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Unable to Disable Certificate Checking. ", e);
         }
 
         if (StringUtils.isNotBlank(myString)) {

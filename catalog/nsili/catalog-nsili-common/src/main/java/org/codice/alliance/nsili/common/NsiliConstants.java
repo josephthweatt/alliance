@@ -26,13 +26,13 @@ public class NsiliConstants {
 
     public static final String STANAG_VERSION = "STANAG 4559";
 
-    public static final Set<String> CONTENT_STRINGS = new HashSet<>(CollectionUtils.collect(
+    protected static final Set<String> CONTENT_STRINGS = new HashSet<>(CollectionUtils.collect(
             Arrays.asList(NsiliProductType.values()), (Object object) -> {
                 NsiliProductType type = (NsiliProductType) object;
                 return type.getSpecName();
             }));
 
-    public static final Set<ContentType> CONTENT_TYPES = new HashSet<>(CollectionUtils.collect(
+    protected static final Set<ContentType> CONTENT_TYPES = new HashSet<>(CollectionUtils.collect(
             Arrays.asList(NsiliProductType.values()), (Object object) -> {
                 NsiliProductType type = (NsiliProductType) object;
                 return new ContentTypeImpl(type.getSpecName(), STANAG_VERSION);

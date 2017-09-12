@@ -34,7 +34,7 @@ public abstract class AbstractAllianceIntegrationTest extends AbstractIntegratio
 
     //The DEFAULT_ALLIANCE_APPS should include all alliance apps. The system will verify
     //that all of these apps can be started.
-    public static final String[] DEFAULT_ALLIANCE_APPS =
+    protected static final String[] DEFAULT_ALLIANCE_APPS =
             {"catalog-app", "solr-app", "spatial-app", "security-app", "imaging-app", "video-app", "nsili-app"};
 
     @Override

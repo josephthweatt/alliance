@@ -44,10 +44,6 @@ public enum NsiliManagerType {
         return specName;
     }
 
-    public void setSpecName(String specName) {
-        this.specName = specName;
-    }
-
     public static NsiliManagerType fromSpecName(String specName) {
         return typeBySpecName.get(specName);
     }
