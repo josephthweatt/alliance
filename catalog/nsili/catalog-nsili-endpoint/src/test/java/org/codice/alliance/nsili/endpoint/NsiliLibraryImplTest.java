@@ -40,7 +40,7 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
-public class NsiliLibraryImplTest extends NsiliCommonTestHelper {
+public class NsiliLibraryImplTest extends NsiliTestCommon {
 
     private static final String TEST_HOSTNAME = "ddfhost";
 

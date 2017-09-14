@@ -76,7 +76,7 @@ import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-public class SubmitStandingQueryRequestImplTest extends NsiliCommonTestHelper {
+public class SubmitStandingQueryRequestImplTest extends NsiliTestCommon {
 
     private SubmitStandingQueryRequestImpl standingQueryRequest;
 

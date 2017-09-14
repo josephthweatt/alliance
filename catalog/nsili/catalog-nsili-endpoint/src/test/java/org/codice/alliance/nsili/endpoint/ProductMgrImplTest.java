@@ -67,7 +67,7 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.security.service.SecurityServiceException;
 
-public class ProductMgrImplTest extends NsiliCommonTestHelper {
+public class ProductMgrImplTest extends NsiliTestCommon {
 
     private ProductMgrImpl productMgr;
 
