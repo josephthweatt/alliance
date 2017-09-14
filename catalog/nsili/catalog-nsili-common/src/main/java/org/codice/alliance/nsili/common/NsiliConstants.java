@@ -26,7 +26,7 @@ public class NsiliConstants {
 
     public static final String STANAG_VERSION = "STANAG 4559";
 
-    protected static final Set<String> CONTENT_STRINGS = new HashSet<>(CollectionUtils.collect(
+    public static final Set<String> CONTENT_STRINGS = new HashSet<>(CollectionUtils.collect(
             Arrays.asList(NsiliProductType.values()), (Object object) -> {
                 NsiliProductType type = (NsiliProductType) object;
                 return type.getSpecName();
