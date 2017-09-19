@@ -32,7 +32,7 @@ public class NsiliConstants {
                 return type.getSpecName();
             }));
 
-    protected static final Set<ContentType> CONTENT_TYPES = new HashSet<>(CollectionUtils.collect(
+    public static final Set<ContentType> CONTENT_TYPES = new HashSet<>(CollectionUtils.collect(
             Arrays.asList(NsiliProductType.values()), (Object object) -> {
                 NsiliProductType type = (NsiliProductType) object;
                 return new ContentTypeImpl(type.getSpecName(), STANAG_VERSION);
