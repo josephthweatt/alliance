@@ -22,7 +22,7 @@ import java.util.Set;
 import org.codice.alliance.catalog.core.api.types.Security;
 
 /** This class provides attributes that relate to security of the resource and metadata */
-public class SecurityAttributes implements Security, MetacardType {
+public class SecurityAttributes extends Security implements MetacardType {
   private static final Set<AttributeDescriptor> DESCRIPTORS = new HashSet<>();
 
   private static final String NAME = "security";

@@ -22,7 +22,7 @@ import java.util.Set;
 import org.codice.alliance.catalog.core.api.types.Isr;
 
 /** This class provides attributes that relate to intelligence, search, and reconnaissance */
-public class IsrAttributes implements Isr, MetacardType {
+public class IsrAttributes extends Isr implements MetacardType {
 
   private static final Set<AttributeDescriptor> DESCRIPTORS = new HashSet<>();
 
