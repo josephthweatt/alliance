@@ -27,6 +27,11 @@ public class AllianceBrandingPlugin implements BrandingPlugin {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AllianceBrandingPlugin.class);
 
+  public static final String HTTPS_GITHUB_COM_CODICE_ALLIANCE =
+          "https://github.com/codice/alliance";
+
+  public static final String ALLIANCE_ALLIANCE_LOGO_PNG = "/alliance/alliance-logo.png";
+
   private String brandingPropertiesFilePath;
 
   private String productName;
@@ -55,28 +60,26 @@ public class AllianceBrandingPlugin implements BrandingPlugin {
       productName = propertiesConfiguration.getString("branding.product.name", "Alliance");
       productURL =
           propertiesConfiguration.getString(
-              "branding.product.url", "https://github.com/codice/alliance");
+              "branding.product.url", HTTPS_GITHUB_COM_CODICE_ALLIANCE);
       productImage =
           propertiesConfiguration.getString(
-              "branding.product.image", "/alliance/alliance-logo.png");
+              "branding.product.image", ALLIANCE_ALLIANCE_LOGO_PNG);
       vendorName = propertiesConfiguration.getString("branding.vendor.name", "Codice Foundation");
       vendorURL = propertiesConfiguration.getString("branding.vendor.url", "http://codice.org");
       vendorImage =
-          propertiesConfiguration.getString("branding.vendor.image", "/alliance/alliance-logo.png");
+          propertiesConfiguration.getString("branding.vendor.image", ALLIANCE_ALLIANCE_LOGO_PNG);
       favIcon = propertiesConfiguration.getString("branding.favicon", "/alliance/favicon.ico");
     } catch (ConfigurationException e) {
       LOGGER.info("Unable to read properties file {}", brandingPropertiesFilePath, e.getMessage());
       productName = "Alliance";
-      productURL = "https://github.com/codice/alliance";
-      productImage = "/alliance/alliance-logo.png";
+      productURL = HTTPS_GITHUB_COM_CODICE_ALLIANCE;
+      productImage = ALLIANCE_ALLIANCE_LOGO_PNG;
       vendorName = "Codice Foundation";
-      vendorURL = "https://github.com/codice/alliance";
-      vendorImage = "/alliance/alliance-logo.png";
+      vendorURL = HTTPS_GITHUB_COM_CODICE_ALLIANCE;
+      vendorImage = ALLIANCE_ALLIANCE_LOGO_PNG;
       favIcon = "/alliance/favicon.ico";
     }
   }
-
-  public void destroy() {}
 
   @Override
   public String getFavIcon() {

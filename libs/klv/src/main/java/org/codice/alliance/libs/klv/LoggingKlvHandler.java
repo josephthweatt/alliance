@@ -42,5 +42,7 @@ public class LoggingKlvHandler implements KlvHandler {
   }
 
   @Override
-  public void reset() {}
+  public void reset() {
+    // part of the interface, but not needed here
+  }
 }

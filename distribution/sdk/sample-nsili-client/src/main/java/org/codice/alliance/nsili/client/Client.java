@@ -17,6 +17,8 @@ import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
 import static com.xebialabs.restito.semantics.Condition.method;
 import static org.codice.alliance.nsili.client.SampleNsiliClient.getAttributeFromDag;
 
+import java.util.Arrays;
+
 import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Condition;
 import com.xebialabs.restito.server.StubServer;
@@ -60,42 +62,43 @@ public class Client {
     int hitCount = sampleNsiliClient.getHitCount();
     if (hitCount > 0) {
       DAG[] results = sampleNsiliClient.submitQuery();
-      if (results != null && results.length > 0) {
+      if (results != null) {
         for (int i = 0; i < results.length; i++) {
           LOGGER.info("\t RESULT : {} of {} ", (i + 1), results.length);
           if (getAttributeFromDag(results[i], NsiliConstants.STATUS)
               .equalsIgnoreCase(NsiliCardStatus.OBSOLETE.name())) {
             LOGGER.info("Record is {}. Not testing result", NsiliCardStatus.OBSOLETE.name());
-          } else {
-            sampleNsiliClient.printDagAttributes(results[i]);
-            if (SHOULD_DOWNLOAD_PRODUCT) {
-              sampleNsiliClient.downloadProductFromDAG(results[i]);
-            }
+            continue;
+          }
+          sampleNsiliClient.printDagAttributes(results[i]);
+          if (SHOULD_DOWNLOAD_PRODUCT) {
+            sampleNsiliClient.downloadProductFromDAG(results[i]);
+          }
 
-            // ProductMgr
-            LOGGER.info("-----------------------");
-            try {
-              sampleNsiliClient.testProductMgr(results[i]);
-            } catch (Exception e) {
-              LOGGER.info(
-                  "Unable to test ProductMgr: {}", NsilCorbaExceptionUtil.getExceptionDetails(e));
-            }
-            LOGGER.info("-----------------------");
+          // ProductMgr
+          LOGGER.info("-----------------------");
+          try {
+            sampleNsiliClient.testProductMgr(results[i]);
+          } catch (Exception e) {
+            LOGGER.info(
+                "Unable to test ProductMgr: {}", NsilCorbaExceptionUtil.getExceptionDetails(e));
+          }
+          LOGGER.info("-----------------------");
 
-            // OrderMgr
-            PackageElement[] packageElements = sampleNsiliClient.order(results[i]);
+          // OrderMgr
+          PackageElement[] packageElements = sampleNsiliClient.order(results[i]);
 
-            // ProductMgr
-            if (SHOULD_PROCESS_PKG_ELEMENTS) {
-              // TODO prod is null for packageElement https://codice.atlassian.net/browse/CAL-192
-              for (PackageElement packageElement : packageElements) {
-                Product product = packageElement.prod;
-                sampleNsiliClient.getParameters(product);
-                sampleNsiliClient.getRelatedFileTypes(product);
-                sampleNsiliClient.getRelatedFiles(product);
-              }
+          // ProductMgr
+          if (SHOULD_PROCESS_PKG_ELEMENTS) {
+            // TODO prod is null for packageElement https://codice.atlassian.net/browse/CAL-192
+            for (PackageElement packageElement : packageElements) {
+              Product product = packageElement.prod;
+              sampleNsiliClient.getParameters(product);
+              sampleNsiliClient.getRelatedFileTypes(product);
+              sampleNsiliClient.getRelatedFiles(product);
             }
           }
+
         }
       } else {
         LOGGER.info("No results from query");

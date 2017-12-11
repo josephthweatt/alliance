@@ -32,8 +32,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
@@ -186,37 +186,36 @@ public class ImagingChipActionProvider implements MultiActionProvider {
   }
 
   private static Optional<URI> getOriginalDerivedResourceUri(final Metacard metacard) {
+    Optional<URI> optional = Optional.empty();
     final Attribute derivedResourceUriAttribute =
         metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI);
-    if (derivedResourceUriAttribute != null) {
-      for (Serializable value : derivedResourceUriAttribute.getValues()) {
-        if (value instanceof String) {
-          final String derivedResourceUriString = (String) value;
-          try {
-            final URI derivedResourceUri = new URI(derivedResourceUriString);
 
-            if (canBeChippedLocally(derivedResourceUri)) {
-              if (StringUtils.equals(ORIGINAL_QUALIFIER, derivedResourceUri.getFragment())) {
-                return Optional.of(derivedResourceUri);
-              }
-            } else {
-              for (NameValuePair parameter :
-                  URLEncodedUtils.parse(derivedResourceUri, StandardCharsets.UTF_8.name())) {
-                if (QUALIFIER_KEY.equals(parameter.getName())) {
-                  if (StringUtils.equals(ORIGINAL_QUALIFIER, parameter.getValue())) {
-                    return Optional.of(derivedResourceUri);
-                  }
-                }
-              }
-            }
-          } catch (URISyntaxException e) {
-            // ignore
-          }
+    if (derivedResourceUriAttribute == null) {
+      return optional;
+    }
+
+    for (Serializable value : getStringAttributes(derivedResourceUriAttribute)) {
+      final String derivedResourceUriString = (String) value;
+      try {
+        final URI derivedResourceUri = new URI(derivedResourceUriString);
+
+        if (canBeChippedLocally(derivedResourceUri)
+                && StringUtils.equals(ORIGINAL_QUALIFIER, derivedResourceUri.getFragment())
+            || URLEncodedUtils.parse(derivedResourceUri, StandardCharsets.UTF_8.name())
+                .stream()
+                .anyMatch(
+                    parameter ->
+                        QUALIFIER_KEY.equals(parameter.getName())
+                            && StringUtils.equals(ORIGINAL_QUALIFIER, parameter.getValue()))) {
+          optional = Optional.of(derivedResourceUri);
+          break;
         }
+      } catch (URISyntaxException e) {
+        // ignore
       }
     }
 
-    return Optional.empty();
+    return optional;
   }
 
   /**
@@ -225,5 +224,13 @@ public class ImagingChipActionProvider implements MultiActionProvider {
    */
   private static boolean canBeChippedLocally(URI derivedResourceUri) {
     return StringUtils.equals(ContentItem.CONTENT_SCHEME, derivedResourceUri.getScheme());
+  }
+
+  private static List<Serializable> getStringAttributes(Attribute derivedResourceUriAttribute) {
+    return derivedResourceUriAttribute
+        .getValues()
+        .stream()
+        .filter(v -> v instanceof String)
+        .collect(Collectors.toList());
   }
 }
