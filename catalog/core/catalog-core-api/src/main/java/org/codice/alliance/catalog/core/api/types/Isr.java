@@ -43,7 +43,8 @@ public abstract class Isr {
   public static final String EXPLOITATION_LEVEL = "isr.exploitation-level";
 
   /** Attribute name for accessing the exploitation subjective quality code for this Metacard. */
-  public static final String EXPLOITATION_SUBJECTIVE_QUALITY_CODE = "isr.exploitation-subjective-quality-code";
+  public static final String EXPLOITATION_SUBJECTIVE_QUALITY_CODE =
+      "isr.exploitation-subjective-quality-code";
 
   /** Attribute name for accessing the MTI Job ID for this Metacard. */
   public static final String MOVING_TARGET_INDICATOR_JOB_ID = "isr.mti-job-id";
@@ -163,19 +164,23 @@ public abstract class Isr {
       "isr.cbrn-alarm-classification";
 
   /** Attribute name for accessing the CBRN category for this Metacard. */
-  public static final String CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_CATEGORY = "isr.cbrn-category";
+  public static final String CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_CATEGORY =
+      "isr.cbrn-category";
 
   /** Attribute name for accessing the CBRN incident number for this Metacard. */
-  public static final String CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_INCIDENT_NUMBER = "isr.cbrn-incident-number";
+  public static final String CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_INCIDENT_NUMBER =
+      "isr.cbrn-incident-number";
 
   /** Attribute name for accessing the CBRN operation name for this Metacard. */
-  public static final String CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_OPERATION_NAME = "isr.cbrn-operation-name";
+  public static final String CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_OPERATION_NAME =
+      "isr.cbrn-operation-name";
 
   /** Attribute name for accessing the CBRN type for this Metacard. */
   public static final String CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_TYPE = "isr.cbrn-type";
 
   /** Attribute name for accessing the CBRN substance for this Metacard. */
-  public static final String CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_SUBSTANCE = "isr.cbrn-substance";
+  public static final String CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_SUBSTANCE =
+      "isr.cbrn-substance";
 
   /** Attribute name for accessing the TDL platform number for this Metacard. */
   public static final String TACTICAL_DATA_LINK_PLATFORM = "isr.tdl-platform-number";

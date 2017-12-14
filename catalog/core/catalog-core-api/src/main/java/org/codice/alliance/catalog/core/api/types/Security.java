@@ -43,7 +43,8 @@ public abstract class Security {
   /*  The following attribute names are experimental and may change. */
 
   /** Attribute name for accessing the metadata originator classification for this Metacard. */
-  public static final String METADATA_ORIGINATOR_CLASSIFICATION = "ext.metadata-originator-classification";
+  public static final String METADATA_ORIGINATOR_CLASSIFICATION =
+      "ext.metadata-originator-classification";
 
   /** Attribute name for accessing the metadata classification for this Metacard. */
   public static final String METADATA_CLASSIFICATION = "ext.metadata-classification";
@@ -61,7 +62,8 @@ public abstract class Security {
   public static final String METADATA_RELEASABILITY = "ext.metadata-releasability";
 
   /** Attribute name for accessing the resource originator classification for this Metacard. */
-  public static final String RESOURCE_ORIGINATOR_CLASSIFICATION = "ext.resource-originator-classification";
+  public static final String RESOURCE_ORIGINATOR_CLASSIFICATION =
+      "ext.resource-originator-classification";
 
   /** Attribute name for accessing the resource classification for this Metacard. */
   public static final String RESOURCE_CLASSIFICATION = "ext.resource-classification";

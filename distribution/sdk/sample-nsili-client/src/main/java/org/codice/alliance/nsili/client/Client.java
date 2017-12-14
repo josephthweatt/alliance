@@ -17,8 +17,6 @@ import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
 import static com.xebialabs.restito.semantics.Condition.method;
 import static org.codice.alliance.nsili.client.SampleNsiliClient.getAttributeFromDag;
 
-import java.util.Arrays;
-
 import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Condition;
 import com.xebialabs.restito.server.StubServer;
@@ -98,7 +96,6 @@ public class Client {
               sampleNsiliClient.getRelatedFiles(product);
             }
           }
-
         }
       } else {
         LOGGER.info("No results from query");

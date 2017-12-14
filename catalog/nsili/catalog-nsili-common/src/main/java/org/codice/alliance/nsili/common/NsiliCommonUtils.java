@@ -77,26 +77,28 @@ public class NsiliCommonUtils {
    * @param graph - the graph representation of the DAG
    */
   public static void setUCOEdges(Node root, Graph<Node, Edge> graph) {
-    if (graph != null) {
-      Stack<Node> stack = new Stack<>();
-      Stack<Node> visitorStack = new Stack<>();
-      stack.push(root);
+    if (graph == null) {
+      return;
+    }
 
-      while (!stack.isEmpty()) {
-        Node currNode = stack.pop();
-        if (!visitorStack.contains(currNode)) {
-          visitorStack.push(currNode);
-          for (Edge edge : graph.edgesOf(currNode)) {
+    Stack<Node> stack = new Stack<>();
+    Stack<Node> visitorStack = new Stack<>();
+    stack.push(root);
 
-            Node source = graph.getEdgeSource(edge);
-            Node target = graph.getEdgeTarget(edge);
+    while (!stack.isEmpty()) {
+      Node currNode = stack.pop();
+      if (!visitorStack.contains(currNode)) {
+        visitorStack.push(currNode);
+        for (Edge edge : graph.edgesOf(currNode)) {
 
-            // Remove if statement?
-            if (edge != null && source != null && target != null) {
-              edge.start_node = source.id;
-              edge.end_node = target.id;
-              stack.push(target);
-            }
+          Node source = graph.getEdgeSource(edge);
+          Node target = graph.getEdgeTarget(edge);
+
+          // Remove if statement?
+          if (edge != null && source != null && target != null) {
+            edge.start_node = source.id;
+            edge.end_node = target.id;
+            stack.push(target);
           }
         }
       }

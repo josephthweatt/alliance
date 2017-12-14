@@ -45,6 +45,7 @@ public class CorbaUtils {
 
   public static String getNodeValue(Any any) {
     String value = null;
+
     if (any.type().kind() == TCKind.tk_wstring) {
       value = any.extract_wstring();
     } else if (any.type().kind() == TCKind.tk_string) {

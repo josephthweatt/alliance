@@ -153,7 +153,7 @@ public class SampleNsiliClient {
   public static final String ALLIANCE = "Alliance";
 
   public static final String ASTERISK_LINE =
-          "**************************************************************";
+      "**************************************************************";
 
   private int listenPort;
 
@@ -460,9 +460,9 @@ public class SampleNsiliClient {
         LOGGER.info("Email Validation Results: ");
         LOGGER.info(
             "\tValid : {}\n\tWarning : {}\n\tDetails : {}\n",
-                validationResults.valid,
-                validationResults.warning,
-                validationResults.details);
+            validationResults.valid,
+            validationResults.warning,
+            validationResults.details);
 
         orderRequest = orderMgr.order(order, properties);
         orderRequest.set_user_info(ALLIANCE);
@@ -487,8 +487,7 @@ public class SampleNsiliClient {
 
       return elements;
     } catch (Exception e) {
-      LOGGER.error(
-          "Error completing order request", NsilCorbaExceptionUtil.getExceptionDetails(e));
+      LOGGER.error("Error completing order request", NsilCorbaExceptionUtil.getExceptionDetails(e));
       return null;
     }
   }
@@ -765,7 +764,8 @@ public class SampleNsiliClient {
     DeliveryDetails[] deliveryDetails = {new DeliveryDetails(destination, "", "")};
 
     OrderContents order =
-        new OrderContents(ALLIANCE,
+        new OrderContents(
+            ALLIANCE,
             tailoringSpec,
             pSpec,
             needByDate,
@@ -827,7 +827,8 @@ public class SampleNsiliClient {
     DeliveryDetails[] deliveryDetails = {new DeliveryDetails(destination, "", "")};
 
     OrderContents order =
-        new OrderContents(ALLIANCE,
+        new OrderContents(
+            ALLIANCE,
             tailoringSpec,
             pSpec,
             needByDate,
@@ -1143,24 +1144,25 @@ public class SampleNsiliClient {
     LOGGER.info("\t request_info: {}", description.request_info);
     if (description.request_details != null && description.request_details.length > 0) {
       LOGGER.info("\t details: {}", description.request_details.length);
-      Arrays.stream(description.request_details).forEach(nameValue -> {
-        if (nameValue.aname != null && nameValue.value != null) {
-          String value = getString(nameValue.value);
-          if (nameValue.aname.equalsIgnoreCase("query")) {
-            Query q = QueryHelper.extract(nameValue.value);
-            value = q.bqs_query;
-          }
+      Arrays.stream(description.request_details)
+          .forEach(
+              nameValue -> {
+                if (nameValue.aname != null && nameValue.value != null) {
+                  String value = getString(nameValue.value);
+                  if (nameValue.aname.equalsIgnoreCase("query")) {
+                    Query q = QueryHelper.extract(nameValue.value);
+                    value = q.bqs_query;
+                  }
 
-          if (value != null) {
-            LOGGER.info("\t\t {} = {}", nameValue.aname, value);
-          } else {
-            LOGGER.info("\t\t {} = {} (non-string)", nameValue.aname, nameValue.value);
-          }
-        }
-      });
+                  if (value != null) {
+                    LOGGER.info("\t\t {} = {}", nameValue.aname, value);
+                  } else {
+                    LOGGER.info("\t\t {} = {} (non-string)", nameValue.aname, nameValue.value);
+                  }
+                }
+              });
     } else {
       LOGGER.warn("Notified with no details");
     }
   }
-
 }

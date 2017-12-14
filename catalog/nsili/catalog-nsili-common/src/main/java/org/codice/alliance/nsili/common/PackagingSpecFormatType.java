@@ -16,12 +16,14 @@ package org.codice.alliance.nsili.common;
 public enum PackagingSpecFormatType {
   TARUNC(".tar", "application/x-tar"),
   FILESUNC("", ""),
-  TARZIP(".tar.zip", "application/x-zip"),
-  FILESZIP(".zip", "application/x-zip"),
+  TARZIP(".tar.zip", applicationZip()),
+  FILESZIP(".zip", applicationZip()),
   TARGZIP(".tar.gz", "application/x-gzip"),
   FILESGZIP(".gz", "application/x-gzip"),
-  TARCOMPRESS(".tar.Z", "application/x-zip"),
-  FILESCOMPRESS(".Z", "application/x-zip");
+  TARCOMPRESS(".tar.Z", applicationZip()),
+  FILESCOMPRESS(".Z", applicationZip());
+
+  private static final String APPLICATION_X_ZIP = "application/x-zip";
 
   private String extension;
   private String contentType;
@@ -37,5 +39,9 @@ public enum PackagingSpecFormatType {
 
   public String getContentType() {
     return contentType;
+  }
+
+  private static String applicationZip() {
+    return APPLICATION_X_ZIP;
   }
 }

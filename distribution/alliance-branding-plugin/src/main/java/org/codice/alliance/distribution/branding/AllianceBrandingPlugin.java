@@ -28,7 +28,7 @@ public class AllianceBrandingPlugin implements BrandingPlugin {
   private static final Logger LOGGER = LoggerFactory.getLogger(AllianceBrandingPlugin.class);
 
   public static final String HTTPS_GITHUB_COM_CODICE_ALLIANCE =
-          "https://github.com/codice/alliance";
+      "https://github.com/codice/alliance";
 
   public static final String ALLIANCE_ALLIANCE_LOGO_PNG = "/alliance/alliance-logo.png";
 
@@ -62,8 +62,7 @@ public class AllianceBrandingPlugin implements BrandingPlugin {
           propertiesConfiguration.getString(
               "branding.product.url", HTTPS_GITHUB_COM_CODICE_ALLIANCE);
       productImage =
-          propertiesConfiguration.getString(
-              "branding.product.image", ALLIANCE_ALLIANCE_LOGO_PNG);
+          propertiesConfiguration.getString("branding.product.image", ALLIANCE_ALLIANCE_LOGO_PNG);
       vendorName = propertiesConfiguration.getString("branding.vendor.name", "Codice Foundation");
       vendorURL = propertiesConfiguration.getString("branding.vendor.url", "http://codice.org");
       vendorImage =

@@ -294,7 +294,9 @@ public class BqsConverter {
     }
 
     @Override
-    public void exitAttribute_name(BqsParser.Attribute_nameContext ctx) {}
+    public void exitAttribute_name(BqsParser.Attribute_nameContext ctx) {
+      // part of the interface but not needed by this class
+    }
 
     @Override
     public void enterComp_op(BqsParser.Comp_opContext ctx) {
@@ -315,10 +317,14 @@ public class BqsConverter {
     }
 
     @Override
-    public void exitComp_op(BqsParser.Comp_opContext ctx) {}
+    public void exitComp_op(BqsParser.Comp_opContext ctx) {
+      // part of the interface but not needed by this class
+    }
 
     @Override
-    public void enterConstant_expression(BqsParser.Constant_expressionContext ctx) {}
+    public void enterConstant_expression(BqsParser.Constant_expressionContext ctx) {
+      // part of the interface but not needed by this class
+    }
 
     @Override
     public void exitConstant_expression(BqsParser.Constant_expressionContext ctx) {
@@ -339,33 +345,31 @@ public class BqsConverter {
             date = new Date(dateTime.toInstant(ZoneOffset.UTC).toEpochMilli());
           }
 
-          if (date != null) {
-            if (bqsOperator == BqsOperator.GTE) {
-              filter =
-                  filterBuilder.anyOf(
-                      filterBuilder.attribute(attribute).after().date(date),
-                      filterBuilder.attribute(attribute).equalTo().date(date));
-            } else if (bqsOperator == BqsOperator.GT) {
-              filter = filterBuilder.attribute(attribute).after().date(date);
-            } else if (bqsOperator == BqsOperator.LT) {
-              filter = filterBuilder.attribute(attribute).before().date(date);
-            } else if (bqsOperator == BqsOperator.LTE) {
-              filter =
-                  filterBuilder.anyOf(
-                      filterBuilder.attribute(attribute).before().date(date),
-                      filterBuilder.attribute(attribute).equalTo().date(date));
-            } else if (bqsOperator == BqsOperator.NOT) {
-              filter = filterBuilder.not(filterBuilder.attribute(attribute).equalTo().date(date));
-            } else if (bqsOperator == BqsOperator.EQUAL) {
-              filter = filterBuilder.attribute(attribute).equalTo().date(date);
-            }
+          if (bqsOperator == BqsOperator.GTE) {
+            filter =
+                filterBuilder.anyOf(
+                    filterBuilder.attribute(attribute).after().date(date),
+                    filterBuilder.attribute(attribute).equalTo().date(date));
+          } else if (bqsOperator == BqsOperator.GT) {
+            filter = filterBuilder.attribute(attribute).after().date(date);
+          } else if (bqsOperator == BqsOperator.LT) {
+            filter = filterBuilder.attribute(attribute).before().date(date);
+          } else if (bqsOperator == BqsOperator.LTE) {
+            filter =
+                filterBuilder.anyOf(
+                    filterBuilder.attribute(attribute).before().date(date),
+                    filterBuilder.attribute(attribute).equalTo().date(date));
+          } else if (bqsOperator == BqsOperator.NOT) {
+            filter = filterBuilder.not(filterBuilder.attribute(attribute).equalTo().date(date));
+          } else if (bqsOperator == BqsOperator.EQUAL) {
+            filter = filterBuilder.attribute(attribute).equalTo().date(date);
+          }
 
-            if (filter != null && !nestedOperatorStack.isEmpty()) {
-              List<Filter> filters = filterBy.get(nestedOperatorStack.peek());
-              filters.add(filter);
-            } else {
-              currFilter = filter;
-            }
+          if (filter != null && !nestedOperatorStack.isEmpty()) {
+            List<Filter> filters = filterBy.get(nestedOperatorStack.peek());
+            filters.add(filter);
+          } else {
+            currFilter = filter;
           }
         } catch (DateTimeParseException e) {
           LOGGER.debug("Unable to parse date from: {}", dateStr);
@@ -620,11 +624,8 @@ public class BqsConverter {
     @Override
     public void exitGeo_element(BqsParser.Geo_elementContext ctx) {
       BqsOperator operator = bqsOperatorStack.pop();
-      boolean shouldNegate = false;
       // Peek and if it's negated pop that one off too
-      if (bqsOperatorStack.peek() == BqsOperator.NOT) {
-        shouldNegate = true;
-      }
+      boolean shouldNegate = (bqsOperatorStack.peek() == BqsOperator.NOT);
 
       Filter filter = null;
 
@@ -635,61 +636,29 @@ public class BqsConverter {
             || operator == BqsOperator.OUTSIDE) {
 
           if (buildingShape == BqsShape.CIRCLE) {
-            if (operator == BqsOperator.INSIDE) {
-              filter =
-                  filterBuilder.attribute(attribute).withinBuffer().wkt(builtWkt, radiusInMeters);
-            } else if (operator == BqsOperator.INTERSECT) {
-              filter =
-                  filterBuilder.attribute(attribute).withinBuffer().wkt(builtWkt, radiusInMeters);
-            } else if (operator == BqsOperator.OUTSIDE) {
-              filter =
-                  filterBuilder.not(
-                      filterBuilder
-                          .attribute(attribute)
-                          .withinBuffer()
-                          .wkt(builtWkt, radiusInMeters));
+            filter =
+                filterBuilder.attribute(attribute).withinBuffer().wkt(builtWkt, radiusInMeters);
+            if (operator == BqsOperator.OUTSIDE) {
+              filter = filterBuilder.not(filter);
             }
           } else {
             if (operator == BqsOperator.INSIDE) {
               filter = filterBuilder.attribute(attribute).within().wkt(builtWkt);
             } else if (operator == BqsOperator.INTERSECT) {
               filter = filterBuilder.attribute(attribute).intersecting().wkt(builtWkt);
-            } else if (operator == BqsOperator.OUTSIDE) {
+            } else {
               filter = filterBuilder.not(filterBuilder.attribute(attribute).within().wkt(builtWkt));
             }
           }
-        } else if (operator == BqsOperator.WITHIN || operator == BqsOperator.BEYOND) {
+        }
+
+        if (operator == BqsOperator.WITHIN || operator == BqsOperator.BEYOND) {
+          filter =
+              filterBuilder.attribute(attribute).withinBuffer().wkt(builtWkt, relativeDistInMeters);
+
           // Relative Geo Operators
-          if (shouldNegate) {
-            if (operator == BqsOperator.WITHIN) {
-              filter =
-                  filterBuilder.not(
-                      filterBuilder
-                          .attribute(attribute)
-                          .withinBuffer()
-                          .wkt(builtWkt, relativeDistInMeters));
-            } else if (operator == BqsOperator.BEYOND) {
-              filter =
-                  filterBuilder
-                      .attribute(attribute)
-                      .withinBuffer()
-                      .wkt(builtWkt, relativeDistInMeters);
-            }
-          } else {
-            if (operator == BqsOperator.WITHIN) {
-              filter =
-                  filterBuilder
-                      .attribute(attribute)
-                      .withinBuffer()
-                      .wkt(builtWkt, relativeDistInMeters);
-            } else if (operator == BqsOperator.BEYOND) {
-              filter =
-                  filterBuilder.not(
-                      filterBuilder
-                          .attribute(attribute)
-                          .withinBuffer()
-                          .wkt(builtWkt, relativeDistInMeters));
-            }
+          if ((shouldNegate) == (operator == BqsOperator.WITHIN)) {
+            filter = filterBuilder.not(filter);
           }
         }
 
