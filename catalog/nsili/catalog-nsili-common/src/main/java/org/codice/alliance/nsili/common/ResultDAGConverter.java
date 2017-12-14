@@ -84,6 +84,255 @@ public class ResultDAGConverter {
   private static final Pattern ATTRIBUTE_PATTERN =
       Pattern.compile("([a-zA-Z0-9_:]+):([a-zA-Z0-9_]+).([a-zA-Z0-9]+)");
 
+  private static void addMetacardIntegerAttribute(
+      final String addAttr, final String getAttr, DAGUtils utils) {
+    if (shouldAdd(buildAttr(utils.attribute, addAttr), utils.resultAttributes)) {
+      Attribute attribute = utils.metacard.getAttribute(getAttr);
+      if (attribute != null) {
+        Integer integer = getInteger(attribute.getValue());
+        attemptAddInteger(integer, addAttr, utils);
+      }
+    }
+  }
+
+  private static void addMetacardDoubleAttribute(
+      final String addAttr, final String getAttr, DAGUtils utils) {
+    if (shouldAdd(buildAttr(utils.attribute, addAttr), utils.resultAttributes)) {
+      Attribute attribute = utils.metacard.getAttribute(getAttr);
+      if (attribute != null) {
+        Double dbl = getDouble(attribute.getValue());
+        if (dbl != null) {
+          addDoubleAttribute(utils.graph, utils.node, addAttr, dbl, utils.orb);
+          utils.addedAttributes.add(buildAttr(utils.attribute, addAttr));
+        }
+      }
+    }
+  }
+
+  private static void addMetacardStringAttribute(
+      final String addAttr, final String getAttr, DAGUtils utils) {
+    if (shouldAdd(buildAttr(utils.attribute, addAttr), utils.resultAttributes)) {
+      Attribute attribute = utils.metacard.getAttribute(getAttr);
+      if (attribute != null) {
+        String string = String.valueOf(attribute.getValue());
+        attemptAddString(string, addAttr, utils);
+      }
+    }
+  }
+
+  private static void addMetacardValueStringAttribute(
+      final String addAttr, final String getAttr, DAGUtils utils) {
+    if (shouldAdd(buildAttr(utils.attribute, addAttr), utils.resultAttributes)) {
+      Attribute attribute = utils.metacard.getAttribute(getAttr);
+      if (attribute != null) {
+        String string = getValueString(attribute.getValues());
+        attemptAddString(string, addAttr, utils);
+      }
+    }
+  }
+
+  private static void addMetacardDateAttribute(
+      final String addAttr, final String getAttr, DAGUtils utils) {
+    if (shouldAdd(buildAttr(utils.attribute, addAttr), utils.resultAttributes)) {
+      Attribute attribute = utils.metacard.getAttribute(getAttr);
+      if (attribute != null) {
+        Date date = (Date) attribute.getValue();
+        if (date != null) {
+          addDateAttribute(utils.graph, utils.node, addAttr, date, utils.orb);
+          utils.addedAttributes.add(buildAttr(utils.attribute, addAttr));
+        }
+      }
+    }
+  }
+
+  private static void attemptAddInteger(Integer integer, final String key, DAGUtils utils) {
+    if (integer != null) {
+      addIntegerAttribute(utils.graph, utils.node, key, integer, utils.orb);
+      utils.addedAttributes.add(buildAttr(utils.attribute, key));
+    }
+  }
+
+  private static void attemptAddString(
+      String addedStr, final String nsiliConstant, DAGUtils utils) {
+    if (addedStr != null) {
+      addStringAttribute(utils.graph, utils.node, nsiliConstant, addedStr, utils.orb);
+      utils.addedAttributes.add(buildAttr(utils.attribute, nsiliConstant));
+    }
+  }
+
+  private static void attemptAddBooleanProductLocal(final String nsiliConstant, DAGUtils utils) {
+    if (shouldAdd(buildAttr(utils.attribute, nsiliConstant), utils.resultAttributes)) {
+      String siteName = SystemInfo.getSiteName();
+      boolean productLocal = true;
+      if (siteName != null
+          && utils.metacard.getSourceId() != null
+          && !siteName.equals(utils.metacard.getSourceId())) {
+        productLocal = false;
+      }
+      addBooleanAttribute(utils.graph, utils.node, nsiliConstant, productLocal, utils.orb);
+      utils.addedAttributes.add(buildAttr(utils.attribute, nsiliConstant));
+    }
+  }
+
+  private static List<String> bar1(DAGUtils utils) {
+    if (shouldAdd(
+        buildAttr(utils.attribute, NsiliConstants.DATE_TIME_DECLARED), utils.resultAttributes)) {
+      if (utils.metacard.getCreatedDate() != null) {
+        addDateAttribute(
+            utils.graph,
+            utils.node,
+            NsiliConstants.DATE_TIME_DECLARED,
+            utils.metacard.getCreatedDate(),
+            utils.orb);
+      } else {
+        addDateAttribute(
+            utils.graph, utils.node, NsiliConstants.DATE_TIME_DECLARED, new Date(), utils.orb);
+      }
+      utils.addedAttributes.add(buildAttr(utils.attribute, NsiliConstants.DATE_TIME_DECLARED));
+    }
+    return utils.addedAttributes;
+  }
+
+  private static List<String> foo1(DAGUtils utils) {
+    if (shouldAdd(buildAttr(utils.attribute, NsiliConstants.CREATOR), utils.resultAttributes)) {
+      Attribute pocAttr = utils.metacard.getAttribute(Contact.CREATOR_NAME);
+      if (pocAttr != null) {
+        String pocString = String.valueOf(pocAttr.getValue());
+        if (StringUtils.isNotBlank(pocString)) {
+          addStringAttribute(utils.graph, utils.node, NsiliConstants.CREATOR, pocString, utils.orb);
+        } else {
+          addStringAttribute(
+              utils.graph, utils.node, NsiliConstants.CREATOR, SystemInfo.getSiteName(), utils.orb);
+        }
+      } else {
+        addStringAttribute(
+            utils.graph, utils.node, NsiliConstants.CREATOR, SystemInfo.getSiteName(), utils.orb);
+      }
+      utils.addedAttributes.add(buildAttr(utils.attribute, NsiliConstants.CREATOR));
+    }
+    return utils.addedAttributes;
+  }
+
+  private static List<String> bar(DAGUtils utils) {
+    if (shouldAdd(
+        buildAttr(utils.attribute, NsiliConstants.NUMBER_OF_ROWS), utils.resultAttributes)) {
+      Attribute heightAttr = utils.metacard.getAttribute(Media.HEIGHT);
+      if (heightAttr != null) {
+        Integer height = getInteger(heightAttr.getValue());
+        if (height != null) {
+          addIntegerAttribute(
+              utils.graph, utils.node, NsiliConstants.NUMBER_OF_ROWS, height, utils.orb);
+          utils.addedAttributes.add(buildAttr(utils.attribute, NsiliConstants.NUMBER_OF_ROWS));
+        }
+      }
+    }
+    return utils.addedAttributes;
+  }
+
+  private static List<String> foo(final String nsiliConstant, DAGUtils utils) {
+    boolean classificationAdded = false;
+    if (shouldAdd(buildAttr(utils.attribute, nsiliConstant), utils.resultAttributes)) {
+      Attribute metadataClassificationAttr =
+          utils.metacard.getAttribute(Security.METADATA_CLASSIFICATION);
+      String classification = null;
+      if (metadataClassificationAttr != null) {
+        classification = getClassification(metadataClassificationAttr.getValue());
+      } else {
+        Attribute classificationAttr = utils.metacard.getAttribute(Security.CLASSIFICATION);
+        if (classificationAttr != null) {
+          classification = getClassification(classificationAttr.getValue());
+        }
+      }
+
+      if (classification != null) {
+        addStringAttribute(utils.graph, utils.node, nsiliConstant, classification, utils.orb);
+        utils.addedAttributes.add(buildAttr(utils.attribute, nsiliConstant));
+        classificationAdded = true;
+      }
+    }
+
+    if (shouldAdd(buildAttr(utils.attribute, NsiliConstants.POLICY), utils.resultAttributes)) {
+      Attribute metadataPolicyAttr =
+          utils.metacard.getAttribute(Security.METADATA_CLASSIFICATION_SYSTEM);
+      String metadataPolicy = null;
+      if (metadataPolicyAttr != null) {
+        metadataPolicy = String.valueOf(metadataPolicyAttr.getValue());
+      } else {
+        Attribute policyAttr = utils.metacard.getAttribute(Security.CLASSIFICATION_SYSTEM);
+        if (policyAttr != null) {
+          metadataPolicy = String.valueOf(policyAttr.getValue());
+        }
+      }
+
+      attemptAddString(metadataPolicy, NsiliConstants.POLICY, utils);
+    }
+
+    if (shouldAdd(
+        buildAttr(utils.attribute, NsiliConstants.RELEASABILITY), utils.resultAttributes)) {
+      Attribute metadataReleasabilityAttr =
+          utils.metacard.getAttribute(Security.METADATA_RELEASABILITY);
+      String metadataReleasability = null;
+      if (metadataReleasabilityAttr != null) {
+        metadataReleasability = String.valueOf(metadataReleasabilityAttr.getValue());
+      } else {
+        Attribute releasabilityAttr = utils.metacard.getAttribute(Security.RELEASABILITY);
+        if (releasabilityAttr != null) {
+          metadataReleasability = String.valueOf(releasabilityAttr.getValue());
+        }
+      }
+
+      attemptAddString(metadataReleasability, NsiliConstants.RELEASABILITY, utils);
+    }
+
+    if (!classificationAdded) {
+      // Add defaults from NSILI
+      addStringAttribute(
+          utils.graph,
+          utils.node,
+          nsiliConstant,
+          NsiliClassification.NO_CLASSIFICATION.getSpecName(),
+          utils.orb);
+      utils.addedAttributes.add(buildAttr(utils.attribute, nsiliConstant));
+
+      addStringAttribute(
+          utils.graph, utils.node, NsiliConstants.POLICY, NsiliConstants.NATO, utils.orb);
+      utils.addedAttributes.add(buildAttr(utils.attribute, NsiliConstants.POLICY));
+
+      addStringAttribute(
+          utils.graph, utils.node, NsiliConstants.RELEASABILITY, NsiliConstants.NATO, utils.orb);
+      utils.addedAttributes.add(buildAttr(utils.attribute, NsiliConstants.RELEASABILITY));
+    }
+
+    return utils.addedAttributes;
+  }
+
+  private static class DAGUtils {
+    public String attribute;
+    public Metacard metacard;
+    public List<String> resultAttributes;
+    public DirectedAcyclicGraph<Node, Edge> graph;
+    public Node node;
+    public ORB orb;
+    public List<String> addedAttributes;
+
+    public DAGUtils(
+        String attribute,
+        Metacard metacard,
+        List<String> resultAttributes,
+        DirectedAcyclicGraph<Node, Edge> graph,
+        Node node,
+        ORB orb,
+        List<String> addedAttributes) {
+      this.attribute = attribute;
+      this.metacard = metacard;
+      this.resultAttributes = resultAttributes;
+      this.graph = graph;
+      this.node = node;
+      this.orb = orb;
+      this.addedAttributes = addedAttributes;
+    }
+  }
+
   public static DAG convertResult(
       Result result,
       ORB orb,
@@ -91,8 +340,6 @@ public class ResultDAGConverter {
       List<String> resultAttributes,
       Map<String, List<String>> mandatoryAttributes)
       throws DagParsingException {
-    Double distanceInMeters = result.getDistanceInMeters();
-    Double resultScore = result.getRelevanceScore();
     Metacard metacard = result.getMetacard();
 
     DAG dag = new DAG();
@@ -200,35 +447,31 @@ public class ResultDAGConverter {
       addedAttributes.add(buildAttr(attribute, NsiliConstants.IDENTIFIER));
     }
 
-    if (metacard.getCreatedDate() != null) {
-      if (shouldAdd(
-          buildAttr(attribute, NsiliConstants.SOURCE_DATE_TIME_MODIFIED), resultAttributes)) {
-        addDateAttribute(
-            graph,
-            cardNode,
-            NsiliConstants.SOURCE_DATE_TIME_MODIFIED,
-            metacard.getCreatedDate(),
-            orb);
-        addedAttributes.add(buildAttr(attribute, NsiliConstants.SOURCE_DATE_TIME_MODIFIED));
-      }
+    if (metacard.getCreatedDate() != null
+        && shouldAdd(
+            buildAttr(attribute, NsiliConstants.SOURCE_DATE_TIME_MODIFIED), resultAttributes)) {
+      addDateAttribute(
+          graph,
+          cardNode,
+          NsiliConstants.SOURCE_DATE_TIME_MODIFIED,
+          metacard.getCreatedDate(),
+          orb);
+      addedAttributes.add(buildAttr(attribute, NsiliConstants.SOURCE_DATE_TIME_MODIFIED));
     }
 
-    if (metacard.getModifiedDate() != null) {
-      if (shouldAdd(buildAttr(attribute, NsiliConstants.DATE_TIME_MODIFIED), resultAttributes)) {
-        addDateAttribute(
-            graph, cardNode, NsiliConstants.DATE_TIME_MODIFIED, metacard.getModifiedDate(), orb);
-        addedAttributes.add(buildAttr(attribute, NsiliConstants.DATE_TIME_MODIFIED));
-      }
+    if (metacard.getModifiedDate() != null
+        && shouldAdd(buildAttr(attribute, NsiliConstants.DATE_TIME_MODIFIED), resultAttributes)) {
+      addDateAttribute(
+          graph, cardNode, NsiliConstants.DATE_TIME_MODIFIED, metacard.getModifiedDate(), orb);
+      addedAttributes.add(buildAttr(attribute, NsiliConstants.DATE_TIME_MODIFIED));
     }
 
     if (shouldAdd(buildAttr(attribute, NsiliConstants.SOURCE_LIBRARY), resultAttributes)) {
-      if (StringUtils.isNotBlank(metacard.getSourceId())) {
-        addStringAttribute(
-            graph, cardNode, NsiliConstants.SOURCE_LIBRARY, metacard.getSourceId(), orb);
-      } else {
-        addStringAttribute(
-            graph, cardNode, NsiliConstants.SOURCE_LIBRARY, NsiliConstants.UNKNOWN, orb);
-      }
+      String value =
+          (StringUtils.isNotBlank(metacard.getSourceId()))
+              ? metacard.getSourceId()
+              : NsiliConstants.UNKNOWN;
+      addStringAttribute(graph, cardNode, NsiliConstants.SOURCE_LIBRARY, value, orb);
       addedAttributes.add(buildAttr(attribute, NsiliConstants.SOURCE_LIBRARY));
     }
 
@@ -246,13 +489,14 @@ public class ResultDAGConverter {
 
       Attribute versionAction = metacard.getAttribute(MetacardVersion.ACTION);
 
-      if (versionAction != null) {
-        for (Serializable action : versionAction.getValues()) {
-          if (action.toString().trim().equals(MetacardVersion.Action.DELETED.getKey())) {
-            status = NsiliCardStatus.OBSOLETE.name();
-            break;
-          }
-        }
+      if (versionAction != null
+          && versionAction
+              .getValues()
+              .stream()
+              .anyMatch(
+                  action ->
+                      action.toString().trim().equals(MetacardVersion.Action.DELETED.getKey()))) {
+        status = NsiliCardStatus.OBSOLETE.name();
       }
 
       addStringAttribute(graph, cardNode, NsiliConstants.STATUS, status, orb);
@@ -263,10 +507,10 @@ public class ResultDAGConverter {
       Attribute publisherAttr = metacard.getAttribute(Contact.PUBLISHER_NAME);
       if (publisherAttr != null) {
         String publisherStr = String.valueOf(publisherAttr.getValue());
-        if (publisherStr != null) {
-          addStringAttribute(graph, cardNode, NsiliConstants.PUBLISHER, publisherStr, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.PUBLISHER));
-        }
+        DAGUtils utils =
+            new DAGUtils(
+                attribute, metacard, resultAttributes, graph, cardNode, orb, addedAttributes);
+        attemptAddString(publisherStr, NsiliConstants.PUBLISHER, utils);
       }
     }
 
@@ -292,6 +536,10 @@ public class ResultDAGConverter {
       graph.addEdge(productNode, fileNode);
 
       String attribute = parentAttrName + NsiliConstants.NSIL_FILE;
+
+      DAGUtils utils =
+          new DAGUtils(
+              attribute, metacard, resultAttributes, graph, fileNode, orb, addedAttributes);
 
       // Although not required, CSD Alpha requires this field to be populated on synchronization
       if (shouldAdd(buildAttr(attribute, NsiliConstants.ARCHIVED), resultAttributes)) {
@@ -330,65 +578,15 @@ public class ResultDAGConverter {
         }
       }
 
-      if (shouldAdd(buildAttr(attribute, NsiliConstants.DATE_TIME_DECLARED), resultAttributes)) {
-        if (metacard.getCreatedDate() != null) {
-          addDateAttribute(
-              graph, fileNode, NsiliConstants.DATE_TIME_DECLARED, metacard.getCreatedDate(), orb);
-        } else {
-          addDateAttribute(graph, fileNode, NsiliConstants.DATE_TIME_DECLARED, new Date(), orb);
-        }
-        addedAttributes.add(buildAttr(attribute, NsiliConstants.DATE_TIME_DECLARED));
-      }
+      bar1(utils);
 
-      if (shouldAdd(buildAttr(attribute, NsiliConstants.FORMAT), resultAttributes)) {
-        Attribute mediaTypeAttr = metacard.getAttribute(Media.FORMAT);
-        if (mediaTypeAttr != null) {
-          String mediaTypeStr = String.valueOf(mediaTypeAttr.getValue());
-          addStringAttribute(graph, fileNode, NsiliConstants.FORMAT, mediaTypeStr, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.FORMAT));
-        }
-      }
+      addMetacardStringAttribute(NsiliConstants.FORMAT, Media.FORMAT, utils);
 
-      if (shouldAdd(buildAttr(attribute, NsiliConstants.FORMAT_VERSION), resultAttributes)) {
-        Attribute mediaTypeVersionAttr = metacard.getAttribute(Media.FORMAT_VERSION);
-        if (mediaTypeVersionAttr != null) {
-          String mediaTypeVersionStr = String.valueOf(mediaTypeVersionAttr.getValue());
-          if (mediaTypeVersionStr != null) {
-            addStringAttribute(
-                graph, fileNode, NsiliConstants.FORMAT_VERSION, mediaTypeVersionStr, orb);
-            addedAttributes.add(buildAttr(attribute, NsiliConstants.FORMAT_VERSION));
-          }
-        }
-      }
+      addMetacardStringAttribute(NsiliConstants.FORMAT_VERSION, Media.FORMAT_VERSION, utils);
 
-      if (shouldAdd(buildAttr(attribute, NsiliConstants.CREATOR), resultAttributes)) {
-        Attribute pocAttr = metacard.getAttribute(Contact.CREATOR_NAME);
-        if (pocAttr != null) {
-          String pocString = String.valueOf(pocAttr.getValue());
-          if (StringUtils.isNotBlank(pocString)) {
-            addStringAttribute(graph, fileNode, NsiliConstants.CREATOR, pocString, orb);
-          } else {
-            addStringAttribute(
-                graph, fileNode, NsiliConstants.CREATOR, SystemInfo.getSiteName(), orb);
-          }
-        } else {
-          addStringAttribute(
-              graph, fileNode, NsiliConstants.CREATOR, SystemInfo.getSiteName(), orb);
-        }
-        addedAttributes.add(buildAttr(attribute, NsiliConstants.CREATOR));
-      }
+      foo1(utils);
 
-      if (shouldAdd(buildAttr(attribute, NsiliConstants.IS_PRODUCT_LOCAL), resultAttributes)) {
-        String siteName = SystemInfo.getSiteName();
-        boolean productLocal = true;
-        if (siteName != null
-            && metacard.getSourceId() != null
-            && !siteName.equals(metacard.getSourceId())) {
-          productLocal = false;
-        }
-        addBooleanAttribute(graph, fileNode, NsiliConstants.IS_PRODUCT_LOCAL, productLocal, orb);
-        addedAttributes.add(buildAttr(attribute, NsiliConstants.IS_PRODUCT_LOCAL));
-      }
+      attemptAddBooleanProductLocal(NsiliConstants.IS_PRODUCT_LOCAL, utils);
     }
     return addedAttributes;
   }
@@ -408,83 +606,11 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_SECURITY;
 
-    boolean classificationAdded = false;
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.CLASSIFICATION), resultAttributes)) {
-      Attribute metadataClassificationAttr =
-          metacard.getAttribute(Security.METADATA_CLASSIFICATION);
-      String classification = null;
-      if (metadataClassificationAttr != null) {
-        classification = getClassification(metadataClassificationAttr.getValue());
-      } else {
-        Attribute classificationAttr = metacard.getAttribute(Security.CLASSIFICATION);
-        if (classificationAttr != null) {
-          classification = getClassification(classificationAttr.getValue());
-        }
-      }
+    DAGUtils utils =
+        new DAGUtils(
+            attribute, metacard, resultAttributes, graph, securityNode, orb, addedAttributes);
 
-      if (classification != null) {
-        addStringAttribute(graph, securityNode, NsiliConstants.CLASSIFICATION, classification, orb);
-        addedAttributes.add(buildAttr(attribute, NsiliConstants.CLASSIFICATION));
-        classificationAdded = true;
-      }
-    }
-
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.POLICY), resultAttributes)) {
-      Attribute metadataPolicyAttr = metacard.getAttribute(Security.METADATA_CLASSIFICATION_SYSTEM);
-      String metadataPolicy = null;
-      if (metadataPolicyAttr != null) {
-        metadataPolicy = String.valueOf(metadataPolicyAttr.getValue());
-      } else {
-        Attribute policyAttr = metacard.getAttribute(Security.CLASSIFICATION_SYSTEM);
-        if (policyAttr != null) {
-          metadataPolicy = String.valueOf(policyAttr.getValue());
-        }
-      }
-
-      if (metadataPolicy != null) {
-        addStringAttribute(graph, securityNode, NsiliConstants.POLICY, metadataPolicy, orb);
-        addedAttributes.add(buildAttr(attribute, NsiliConstants.POLICY));
-      }
-    }
-
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.RELEASABILITY), resultAttributes)) {
-      Attribute metadataReleasabilityAttr = metacard.getAttribute(Security.METADATA_RELEASABILITY);
-      String metadataReleasability = null;
-      if (metadataReleasabilityAttr != null) {
-        metadataReleasability = String.valueOf(metadataReleasabilityAttr.getValue());
-      } else {
-        Attribute releasabilityAttr = metacard.getAttribute(Security.RELEASABILITY);
-        if (releasabilityAttr != null) {
-          metadataReleasability = String.valueOf(releasabilityAttr.getValue());
-        }
-      }
-
-      if (metadataReleasability != null) {
-        addStringAttribute(
-            graph, securityNode, NsiliConstants.RELEASABILITY, metadataReleasability, orb);
-        addedAttributes.add(buildAttr(attribute, NsiliConstants.RELEASABILITY));
-      }
-    }
-
-    if (!classificationAdded) {
-      // Add defaults from NSILI
-      addStringAttribute(
-          graph,
-          securityNode,
-          NsiliConstants.CLASSIFICATION,
-          NsiliClassification.NO_CLASSIFICATION.getSpecName(),
-          orb);
-      addedAttributes.add(buildAttr(attribute, NsiliConstants.CLASSIFICATION));
-
-      addStringAttribute(graph, securityNode, NsiliConstants.POLICY, NsiliConstants.NATO, orb);
-      addedAttributes.add(buildAttr(attribute, NsiliConstants.POLICY));
-
-      addStringAttribute(
-          graph, securityNode, NsiliConstants.RELEASABILITY, NsiliConstants.NATO, orb);
-      addedAttributes.add(buildAttr(attribute, NsiliConstants.RELEASABILITY));
-    }
-
-    return addedAttributes;
+    return foo(NsiliConstants.CLASSIFICATION, utils);
   }
 
   public static List<String> addMetadataSecurityNodeWithAttributes(
@@ -501,87 +627,19 @@ public class ResultDAGConverter {
     graph.addVertex(metadataSecurityNode);
     graph.addEdge(productNode, metadataSecurityNode);
 
-    boolean classificationAdded = false;
     String attribute = parentAttrName + NsiliConstants.NSIL_METADATA_SECURITY;
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.CLASSIFICATION), resultAttributes)) {
-      Attribute metadataClassificationAttr =
-          metacard.getAttribute(Security.METADATA_CLASSIFICATION);
-      String classification = null;
-      if (metadataClassificationAttr != null) {
-        classification = getClassification(metadataClassificationAttr.getValue());
-      } else {
-        Attribute classificationAttr = metacard.getAttribute(Security.CLASSIFICATION);
-        if (classificationAttr != null) {
-          classification = getClassification(classificationAttr.getValue());
-        }
-      }
+    DAGUtils utils =
+        new DAGUtils(
+            attribute,
+            metacard,
+            resultAttributes,
+            graph,
+            metadataSecurityNode,
+            orb,
+            addedAttributes);
 
-      if (classification != null) {
-        addStringAttribute(
-            graph, metadataSecurityNode, NsiliConstants.CLASSIFICATION, classification, orb);
-        addedAttributes.add(buildAttr(attribute, NsiliConstants.CLASSIFICATION));
-        classificationAdded = true;
-      }
-    }
-
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.POLICY), resultAttributes)) {
-      Attribute metadataPolicyAttr = metacard.getAttribute(Security.METADATA_CLASSIFICATION_SYSTEM);
-      String metadataPolicy = null;
-      if (metadataPolicyAttr != null) {
-        metadataPolicy = String.valueOf(metadataPolicyAttr.getValue());
-      } else {
-        Attribute policyAttr = metacard.getAttribute(Security.CLASSIFICATION_SYSTEM);
-        if (policyAttr != null) {
-          metadataPolicy = String.valueOf(policyAttr.getValue());
-        }
-      }
-
-      if (metadataPolicy != null) {
-        addStringAttribute(graph, metadataSecurityNode, NsiliConstants.POLICY, metadataPolicy, orb);
-        addedAttributes.add(buildAttr(attribute, NsiliConstants.POLICY));
-      }
-    }
-
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.RELEASABILITY), resultAttributes)) {
-      Attribute metadataReleasabilityAttr = metacard.getAttribute(Security.METADATA_RELEASABILITY);
-      String metadataReleasability = null;
-      if (metadataReleasabilityAttr != null) {
-        metadataReleasability = String.valueOf(metadataReleasabilityAttr.getValue());
-      } else {
-        Attribute releasabilityAttr = metacard.getAttribute(Security.RELEASABILITY);
-        if (releasabilityAttr != null) {
-          metadataReleasability = String.valueOf(releasabilityAttr.getValue());
-        }
-      }
-
-      if (metadataReleasability != null) {
-        addStringAttribute(
-            graph, metadataSecurityNode, NsiliConstants.RELEASABILITY, metadataReleasability, orb);
-        addedAttributes.add(buildAttr(attribute, NsiliConstants.RELEASABILITY));
-      }
-    }
-
-    if (!classificationAdded) {
-      // Add defaults from NSILI
-      addStringAttribute(
-          graph,
-          metadataSecurityNode,
-          NsiliConstants.CLASSIFICATION,
-          NsiliClassification.NO_CLASSIFICATION.getSpecName(),
-          orb);
-      addedAttributes.add(buildAttr(attribute, NsiliConstants.CLASSIFICATION));
-
-      addStringAttribute(
-          graph, metadataSecurityNode, NsiliConstants.POLICY, NsiliConstants.NATO, orb);
-      addedAttributes.add(buildAttr(attribute, NsiliConstants.POLICY));
-
-      addStringAttribute(
-          graph, metadataSecurityNode, NsiliConstants.RELEASABILITY, NsiliConstants.NATO, orb);
-      addedAttributes.add(buildAttr(attribute, NsiliConstants.RELEASABILITY));
-    }
-
-    return addedAttributes;
+    return foo(NsiliConstants.CLASSIFICATION, utils);
   }
 
   public static List<String> addParts(
@@ -670,38 +728,13 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_IMAGERY;
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.TITLE), resultAttributes)) {
-      Attribute titleAttr = metacard.getAttribute(Core.TITLE);
-      if (titleAttr != null) {
-        String titleAttrStr = String.valueOf(titleAttr.getValue());
-        if (titleAttrStr != null) {
-          addStringAttribute(graph, imageryNode, NsiliConstants.TITLE, titleAttrStr, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.TITLE));
-        }
-      }
-    }
+    DAGUtils utils =
+        new DAGUtils(
+            attribute, metacard, resultAttributes, graph, imageryNode, orb, addedAttributes);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.NUMBER_OF_ROWS), resultAttributes)) {
-      Attribute imageHeightAttr = metacard.getAttribute(Media.HEIGHT);
-      if (imageHeightAttr != null) {
-        Integer imageHeight = getInteger(imageHeightAttr.getValue());
-        if (imageHeight != null) {
-          addIntegerAttribute(graph, imageryNode, NsiliConstants.NUMBER_OF_ROWS, imageHeight, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.NUMBER_OF_ROWS));
-        }
-      }
-    }
+    addMetacardStringAttribute(NsiliConstants.TITLE, Core.TITLE, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.NUMBER_OF_COLS), resultAttributes)) {
-      Attribute imageWidthAttr = metacard.getAttribute(Media.WIDTH);
-      if (imageWidthAttr != null) {
-        Integer imageWidth = getInteger(imageWidthAttr.getValue());
-        if (imageWidth != null) {
-          addIntegerAttribute(graph, imageryNode, NsiliConstants.NUMBER_OF_COLS, imageWidth, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.NUMBER_OF_COLS));
-        }
-      }
-    }
+    addedAttributes = bar(utils);
 
     if (shouldAdd(buildAttr(attribute, NsiliConstants.DECOMPRESSION_TECHNIQUE), resultAttributes)) {
       Attribute compressionAttr = metacard.getAttribute(Media.COMPRESSION);
@@ -709,15 +742,7 @@ public class ResultDAGConverter {
         String compressionStr = String.valueOf(compressionAttr.getValue());
         if (compressionStr != null) {
           String compressionTechValue = getCompressionTechValue(compressionStr);
-          if (compressionTechValue != null) {
-            addStringAttribute(
-                graph,
-                imageryNode,
-                NsiliConstants.DECOMPRESSION_TECHNIQUE,
-                compressionTechValue,
-                orb);
-            addedAttributes.add(buildAttr(attribute, NsiliConstants.DECOMPRESSION_TECHNIQUE));
-          }
+          attemptAddString(compressionTechValue, NsiliConstants.DECOMPRESSION_TECHNIQUE, utils);
         }
       } else {
         // Default to JPEG compression
@@ -735,10 +760,7 @@ public class ResultDAGConverter {
       Attribute numBandsAttr = metacard.getAttribute(Media.NUMBER_OF_BANDS);
       if (numBandsAttr != null) {
         Integer numBands = getInteger(numBandsAttr.getValue());
-        if (numBands != null) {
-          addIntegerAttribute(graph, imageryNode, NsiliConstants.NUMBER_OF_BANDS, numBands, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.NUMBER_OF_BANDS));
-        }
+        attemptAddInteger(numBands, NsiliConstants.NUMBER_OF_BANDS, utils);
       } else {
         // Default to 0 if not set
         addIntegerAttribute(graph, imageryNode, NsiliConstants.NUMBER_OF_BANDS, 0, orb);
@@ -746,26 +768,14 @@ public class ResultDAGConverter {
       }
     }
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.NIIRS), resultAttributes)) {
-      Attribute niirsAttr =
-          metacard.getAttribute(Isr.NATIONAL_IMAGERY_INTERPRETABILITY_RATING_SCALE);
-      if (niirsAttr != null) {
-        Integer niirs = getInteger(niirsAttr.getValue());
-        if (niirs != null) {
-          addIntegerAttribute(graph, imageryNode, NsiliConstants.NIIRS, niirs, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.NIIRS));
-        }
-      }
-    }
+    addMetacardIntegerAttribute(
+        NsiliConstants.NIIRS, Isr.NATIONAL_IMAGERY_INTERPRETABILITY_RATING_SCALE, utils);
 
     if (shouldAdd(buildAttr(attribute, NsiliConstants.CATEGORY), resultAttributes)) {
       Attribute categoryAttr = metacard.getAttribute(Isr.CATEGORY);
       if (categoryAttr != null) {
         String categoryStr = String.valueOf(categoryAttr.getValue());
-        if (categoryStr != null) {
-          addStringAttribute(graph, imageryNode, NsiliConstants.CATEGORY, categoryStr, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.CATEGORY));
-        }
+        attemptAddString(categoryStr, NsiliConstants.CATEGORY, utils);
       } else {
         // Default to VIS if we don't know the category from data.
         addStringAttribute(
@@ -774,16 +784,7 @@ public class ResultDAGConverter {
       }
     }
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.CLOUD_COVER_PCT), resultAttributes)) {
-      Attribute cloudCoverAttr = metacard.getAttribute(Isr.CLOUD_COVER);
-      if (cloudCoverAttr != null) {
-        Integer cloudCover = getInteger(cloudCoverAttr.getValue());
-        if (cloudCover != null) {
-          addIntegerAttribute(graph, imageryNode, NsiliConstants.CLOUD_COVER_PCT, cloudCover, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.CLOUD_COVER_PCT));
-        }
-      }
-    }
+    addMetacardIntegerAttribute(NsiliConstants.CLOUD_COVER_PCT, Isr.CLOUD_COVER, utils);
 
     if (shouldAdd(buildAttr(attribute, NsiliConstants.IDENTIFIER), resultAttributes)) {
       Attribute imageIdAttr = metacard.getAttribute(Isr.IMAGE_ID);
@@ -808,16 +809,7 @@ public class ResultDAGConverter {
       }
     }
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.COMMENTS), resultAttributes)) {
-      Attribute imageCommentsAttr = metacard.getAttribute(Isr.COMMENTS);
-      if (imageCommentsAttr != null) {
-        String imageComments = String.valueOf(imageCommentsAttr.getValue());
-        if (imageComments != null) {
-          addStringAttribute(graph, imageryNode, NsiliConstants.COMMENTS, imageComments, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.COMMENTS));
-        }
-      }
-    }
+    addMetacardStringAttribute(NsiliConstants.COMMENTS, Isr.COMMENTS, utils);
 
     return addedAttributes;
   }
@@ -837,120 +829,46 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_VIDEO;
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.NUMBER_OF_ROWS), resultAttributes)) {
-      Attribute videoHeightAttr = metacard.getAttribute(Media.HEIGHT);
-      if (videoHeightAttr != null) {
-        Integer videoHeight = getInteger(videoHeightAttr.getValue());
-        if (videoHeight != null) {
-          addIntegerAttribute(graph, videoNode, NsiliConstants.NUMBER_OF_ROWS, videoHeight, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.NUMBER_OF_ROWS));
-        }
-      }
-    }
+    DAGUtils utils =
+        new DAGUtils(attribute, metacard, resultAttributes, graph, videoNode, orb, addedAttributes);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.NUMBER_OF_COLS), resultAttributes)) {
-      Attribute videoWidthAttr = metacard.getAttribute(Media.WIDTH);
-      if (videoWidthAttr != null) {
-        Integer videoWidth = getInteger(videoWidthAttr.getValue());
-        if (videoWidth != null) {
-          addIntegerAttribute(graph, videoNode, NsiliConstants.NUMBER_OF_COLS, videoWidth, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.NUMBER_OF_COLS));
-        }
-      }
-    }
+    bar(utils);
+
+    addMetacardIntegerAttribute(NsiliConstants.NUMBER_OF_COLS, Media.WIDTH, utils);
 
     if (shouldAdd(buildAttr(attribute, NsiliConstants.ENCODING_SCHEME), resultAttributes)) {
       Attribute encodingSchemeAttr = metacard.getAttribute(Media.ENCODING);
       if (encodingSchemeAttr != null) {
         String encodingScheme = getEncodingScheme(encodingSchemeAttr.getValue());
-        if (encodingScheme != null) {
-          addStringAttribute(graph, videoNode, NsiliConstants.ENCODING_SCHEME, encodingScheme, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.ENCODING_SCHEME));
-        }
+        attemptAddString(encodingScheme, NsiliConstants.ENCODING_SCHEME, utils);
       }
     }
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.AVG_BIT_RATE), resultAttributes)) {
-      Attribute avgBitRateAttr = metacard.getAttribute(Media.BITS_PER_SECOND);
-      if (avgBitRateAttr != null) {
-        Double avgBitRate = getDouble(avgBitRateAttr.getValue());
-        if (avgBitRate != null) {
-          addDoubleAttribute(graph, videoNode, NsiliConstants.AVG_BIT_RATE, avgBitRate, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.AVG_BIT_RATE));
-        }
-      }
-    }
+    addMetacardDoubleAttribute(NsiliConstants.AVG_BIT_RATE, Media.BITS_PER_SECOND, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.FRAME_RATE), resultAttributes)) {
-      Attribute frameRateAttr = metacard.getAttribute(Media.FRAMES_PER_SECOND);
-      if (frameRateAttr != null) {
-        Double frameRate = getDouble(frameRateAttr.getValue());
-        if (frameRate != null) {
-          addDoubleAttribute(graph, videoNode, NsiliConstants.FRAME_RATE, frameRate, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.FRAME_RATE));
-        }
-      }
-    }
+    addMetacardDoubleAttribute(NsiliConstants.FRAME_RATE, Media.FRAMES_PER_SECOND, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.SCANNING_MODE), resultAttributes)) {
-      Attribute scanningModeAttr = metacard.getAttribute(Media.SCANNING_MODE);
-      if (scanningModeAttr != null) {
-        String scanningMode = String.valueOf(scanningModeAttr.getValue());
-        if (scanningMode != null) {
-          addStringAttribute(graph, videoNode, NsiliConstants.SCANNING_MODE, scanningMode, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.SCANNING_MODE));
-        }
-      }
-    }
+    addMetacardStringAttribute(NsiliConstants.SCANNING_MODE, Media.SCANNING_MODE, utils);
 
     if (shouldAdd(buildAttr(attribute, NsiliConstants.VMTI_PROCESSED), resultAttributes)) {
       Attribute vmtiProcessedAttr =
           metacard.getAttribute(Isr.VIDEO_MOVING_TARGET_INDICATOR_PROCESSED);
-      if (vmtiProcessedAttr != null) {
-        if (vmtiProcessedAttr.getValue() instanceof Boolean) {
-          Boolean vmtiProcessed = (Boolean) vmtiProcessedAttr.getValue();
-          if (vmtiProcessed != null) {
-            addBooleanAttribute(
-                graph, videoNode, NsiliConstants.VMTI_PROCESSED, vmtiProcessed, orb);
-            addedAttributes.add(buildAttr(attribute, NsiliConstants.VMTI_PROCESSED));
-          }
+      if (vmtiProcessedAttr != null && vmtiProcessedAttr.getValue() instanceof Boolean) {
+        Boolean vmtiProcessed = (Boolean) vmtiProcessedAttr.getValue();
+        if (vmtiProcessed != null) {
+          addBooleanAttribute(graph, videoNode, NsiliConstants.VMTI_PROCESSED, vmtiProcessed, orb);
+          addedAttributes.add(buildAttr(attribute, NsiliConstants.VMTI_PROCESSED));
         }
       }
     }
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.CATEGORY), resultAttributes)) {
-      Attribute categoryAttr = metacard.getAttribute(Isr.CATEGORY);
-      if (categoryAttr != null) {
-        String categoryStr = String.valueOf(categoryAttr.getValue());
-        if (categoryStr != null) {
-          addStringAttribute(graph, videoNode, NsiliConstants.CATEGORY, categoryStr, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.CATEGORY));
-        }
-      }
-    }
+    addMetacardStringAttribute(NsiliConstants.CATEGORY, Isr.CATEGORY, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.MISM_LEVEL), resultAttributes)) {
-      Attribute mismAttr = metacard.getAttribute(Isr.VIDEO_MOTION_IMAGERY_SYSTEMS_MATRIX_LEVEL);
-      if (mismAttr != null) {
-        Integer mism = getInteger(mismAttr.getValue());
-        if (mism != null) {
-          addIntegerAttribute(graph, videoNode, NsiliConstants.MISM_LEVEL, mism, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.MISM_LEVEL));
-        }
-      }
-    }
+    addMetacardIntegerAttribute(
+        NsiliConstants.MISM_LEVEL, Isr.VIDEO_MOTION_IMAGERY_SYSTEMS_MATRIX_LEVEL, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.NUM_VMTI_TGT_REPORTS), resultAttributes)) {
-      Attribute vmtiReportsAttr = metacard.getAttribute(Isr.TARGET_REPORT_COUNT);
-      if (vmtiReportsAttr != null) {
-        Integer vmtiReports = getInteger(vmtiReportsAttr.getValue());
-        if (vmtiReports != null) {
-          addIntegerAttribute(
-              graph, videoNode, NsiliConstants.NUM_VMTI_TGT_REPORTS, vmtiReports, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.NUM_VMTI_TGT_REPORTS));
-        }
-      }
-    }
+    addMetacardIntegerAttribute(
+        NsiliConstants.NUM_VMTI_TGT_REPORTS, Isr.TARGET_REPORT_COUNT, utils);
 
     return addedAttributes;
   }
@@ -970,49 +888,18 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_TDL;
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.PLATFORM), resultAttributes)) {
-      Attribute platformIdAttr = metacard.getAttribute(Isr.TACTICAL_DATA_LINK_PLATFORM);
-      if (platformIdAttr != null) {
-        Integer platformId = getInteger(platformIdAttr.getValue());
-        if (platformId != null) {
-          addIntegerAttribute(graph, tdlNode, NsiliConstants.PLATFORM, platformId, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.PLATFORM));
-        }
-      }
-    }
+    DAGUtils utils =
+        new DAGUtils(attribute, metacard, resultAttributes, graph, tdlNode, orb, addedAttributes);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.ACTIVITY), resultAttributes)) {
-      Attribute activityAttr = metacard.getAttribute(Isr.TACTICAL_DATA_LINK_ACTIVITY);
-      if (activityAttr != null) {
-        Integer activity = getInteger(activityAttr.getValue());
-        if (activity != null) {
-          addIntegerAttribute(graph, tdlNode, NsiliConstants.ACTIVITY, activity, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.ACTIVITY));
-        }
-      }
-    }
+    addMetacardIntegerAttribute(NsiliConstants.PLATFORM, Isr.TACTICAL_DATA_LINK_PLATFORM, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.MESSAGE_NUM), resultAttributes)) {
-      Attribute messageNumAttr = metacard.getAttribute(Isr.TACTICAL_DATA_LINK_MESSAGE_NUMBER);
-      if (messageNumAttr != null) {
-        String messageNum = String.valueOf(messageNumAttr.getValue());
-        if (messageNum != null) {
-          addStringAttribute(graph, tdlNode, NsiliConstants.MESSAGE_NUM, messageNum, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.MESSAGE_NUM));
-        }
-      }
-    }
+    addMetacardIntegerAttribute(NsiliConstants.ACTIVITY, Isr.TACTICAL_DATA_LINK_ACTIVITY, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.TRACK_NUM), resultAttributes)) {
-      Attribute trackNumAttr = metacard.getAttribute(Isr.TACTICAL_DATA_LINK_TRACK_NUMBER);
-      if (trackNumAttr != null) {
-        String trackNum = String.valueOf(trackNumAttr.getValue());
-        if (trackNum != null) {
-          addStringAttribute(graph, tdlNode, NsiliConstants.TRACK_NUM, trackNum, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.TRACK_NUM));
-        }
-      }
-    }
+    addMetacardIntegerAttribute(
+        NsiliConstants.MESSAGE_NUM, Isr.TACTICAL_DATA_LINK_MESSAGE_NUMBER, utils);
+
+    addMetacardStringAttribute(
+        NsiliConstants.TRACK_NUM, Isr.TACTICAL_DATA_LINK_TRACK_NUMBER, utils);
 
     return addedAttributes;
   }
@@ -1032,29 +919,14 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_GMTI;
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.IDENTIFIER_JOB), resultAttributes)) {
-      Attribute gmtiJobIdAttr = metacard.getAttribute(Isr.MOVING_TARGET_INDICATOR_JOB_ID);
-      if (gmtiJobIdAttr != null) {
-        Integer gmtiJobId = getInteger(gmtiJobIdAttr.getValue());
-        if (gmtiJobId != null) {
-          addIntegerAttribute(graph, gmtiNode, NsiliConstants.IDENTIFIER_JOB, gmtiJobId, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.IDENTIFIER_JOB));
-        }
-      }
-    }
+    DAGUtils utils =
+        new DAGUtils(attribute, metacard, resultAttributes, graph, gmtiNode, orb, addedAttributes);
 
-    if (shouldAdd(
-        buildAttr(attribute, NsiliConstants.NUMBER_OF_TARGET_REPORTS), resultAttributes)) {
-      Attribute numTgtReportsAttr = metacard.getAttribute(Isr.TARGET_REPORT_COUNT);
-      if (numTgtReportsAttr != null) {
-        Integer numTgtReports = getInteger(numTgtReportsAttr.getValue());
-        if (numTgtReports != null) {
-          addIntegerAttribute(
-              graph, gmtiNode, NsiliConstants.NUMBER_OF_TARGET_REPORTS, numTgtReports, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.NUMBER_OF_TARGET_REPORTS));
-        }
-      }
-    }
+    addMetacardStringAttribute(
+        NsiliConstants.IDENTIFIER_JOB, Isr.MOVING_TARGET_INDICATOR_JOB_ID, utils);
+
+    addMetacardStringAttribute(
+        NsiliConstants.NUMBER_OF_TARGET_REPORTS, Isr.TARGET_REPORT_COUNT, utils);
 
     return addedAttributes;
   }
@@ -1074,18 +946,12 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_REPORT;
 
-    if (shouldAdd(
-        buildAttr(attribute, NsiliConstants.ORIGINATORS_REQ_SERIAL_NUM), resultAttributes)) {
-      Attribute origReqSerialNumAttr = metacard.getAttribute(Isr.REPORT_SERIAL_NUMBER);
-      if (origReqSerialNumAttr != null) {
-        String origReqSerialNum = String.valueOf(origReqSerialNumAttr.getValue());
-        if (origReqSerialNum != null) {
-          addStringAttribute(
-              graph, reportNode, NsiliConstants.ORIGINATORS_REQ_SERIAL_NUM, origReqSerialNum, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.ORIGINATORS_REQ_SERIAL_NUM));
-        }
-      }
-    }
+    DAGUtils utils =
+        new DAGUtils(
+            attribute, metacard, resultAttributes, graph, reportNode, orb, addedAttributes);
+
+    addMetacardStringAttribute(
+        NsiliConstants.ORIGINATORS_REQ_SERIAL_NUM, Isr.REPORT_SERIAL_NUMBER, utils);
 
     if (shouldAdd(buildAttr(attribute, NsiliConstants.TYPE), resultAttributes)) {
       Attribute reportTypeAttr = metacard.getAttribute(Isr.REPORT_TYPE);
@@ -1098,16 +964,7 @@ public class ResultDAGConverter {
       }
     }
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.INFORMATION_RATING), resultAttributes)) {
-      Attribute infoRatingAttr = metacard.getAttribute(Isr.REPORT_INFO_RATING);
-      if (infoRatingAttr != null) {
-        String infoRating = String.valueOf(infoRatingAttr.getValue());
-        if (infoRating != null) {
-          addStringAttribute(graph, reportNode, NsiliConstants.INFORMATION_RATING, infoRating, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.INFORMATION_RATING));
-        }
-      }
-    }
+    addMetacardStringAttribute(NsiliConstants.INFORMATION_RATING, Isr.REPORT_INFO_RATING, utils);
 
     if (shouldAdd(buildAttr(attribute, NsiliConstants.PRIORITY), resultAttributes)) {
       Attribute priorityAttr = metacard.getAttribute(Isr.REPORT_PRIORITY);
@@ -1258,15 +1115,15 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_CBRN;
 
+    DAGUtils utils =
+        new DAGUtils(attribute, metacard, resultAttributes, graph, cbrnNode, orb, addedAttributes);
+
     if (shouldAdd(buildAttr(attribute, NsiliConstants.OPERATION_NAME), resultAttributes)) {
       Attribute cbrnOpNameAttr =
           metacard.getAttribute(Isr.CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_OPERATION_NAME);
       if (cbrnOpNameAttr != null) {
         String cbrnOpName = String.valueOf(cbrnOpNameAttr.getValue());
-        if (cbrnOpName != null) {
-          addStringAttribute(graph, cbrnNode, NsiliConstants.OPERATION_NAME, cbrnOpName, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.OPERATION_NAME));
-        }
+        attemptAddString(cbrnOpName, NsiliConstants.OPERATION_NAME, utils);
       }
     }
 
@@ -1275,10 +1132,7 @@ public class ResultDAGConverter {
           metacard.getAttribute(Isr.CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_INCIDENT_NUMBER);
       if (incidentNumAttr != null) {
         String incidentNum = String.valueOf(incidentNumAttr.getValue());
-        if (incidentNum != null) {
-          addStringAttribute(graph, cbrnNode, NsiliConstants.INCIDENT_NUM, incidentNum, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.INCIDENT_NUM));
-        }
+        attemptAddString(incidentNum, NsiliConstants.INCIDENT_NUM, utils);
       }
     }
 
@@ -1287,10 +1141,7 @@ public class ResultDAGConverter {
           metacard.getAttribute(Isr.CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_TYPE);
       if (eventTypeAttr != null) {
         String eventType = getCbrnEventType(eventTypeAttr.getValue());
-        if (eventType != null) {
-          addStringAttribute(graph, cbrnNode, NsiliConstants.EVENT_TYPE, eventType, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.EVENT_TYPE));
-        }
+        attemptAddString(eventType, NsiliConstants.EVENT_TYPE, utils);
       }
     }
 
@@ -1299,10 +1150,7 @@ public class ResultDAGConverter {
           metacard.getAttribute(Isr.CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_CATEGORY);
       if (cbrnCatAttr != null) {
         String cbrnCat = String.valueOf(cbrnCatAttr.getValue());
-        if (cbrnCat != null) {
-          addStringAttribute(graph, cbrnNode, NsiliConstants.CBRN_CATEGORY, cbrnCat, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.CBRN_CATEGORY));
-        }
+        attemptAddString(cbrnCat, NsiliConstants.CBRN_CATEGORY, utils);
       }
     }
 
@@ -1311,10 +1159,7 @@ public class ResultDAGConverter {
           metacard.getAttribute(Isr.CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_SUBSTANCE);
       if (cbrnSubstanceAttr != null) {
         String cbrnSubstance = String.valueOf(cbrnSubstanceAttr.getValue());
-        if (cbrnSubstance != null) {
-          addStringAttribute(graph, cbrnNode, NsiliConstants.SUBSTANCE, cbrnSubstance, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.SUBSTANCE));
-        }
+        attemptAddString(cbrnSubstance, NsiliConstants.SUBSTANCE, utils);
       }
     }
 
@@ -1323,10 +1168,7 @@ public class ResultDAGConverter {
           metacard.getAttribute(Isr.CHEMICAL_BIOLOGICAL_RADIOLOGICAL_NUCLEAR_ALARM_CLASSIFICATION);
       if (alarmClassAttr != null) {
         String alarmClass = getCbrnAlarmClassification(alarmClassAttr.getValue());
-        if (alarmClass != null) {
-          addStringAttribute(graph, cbrnNode, NsiliConstants.ALARM_CLASSIFICATION, alarmClass, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.ALARM_CLASSIFICATION));
-        }
+        attemptAddString(alarmClass, NsiliConstants.ALARM_CLASSIFICATION, utils);
       }
     }
 
@@ -1353,16 +1195,11 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_INTREP;
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.SITUATION_TYPE), resultAttributes)) {
-      Attribute situationTypeAttr = metacard.getAttribute(Isr.REPORT_SITUATION_TYPE);
-      if (situationTypeAttr != null) {
-        String situationType = getIntRepSituationType(situationTypeAttr.getValue());
-        if (situationType != null) {
-          addStringAttribute(graph, intRepNode, NsiliConstants.SITUATION_TYPE, situationType, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.SITUATION_TYPE));
-        }
-      }
-    }
+    DAGUtils utils =
+        new DAGUtils(
+            attribute, metacard, resultAttributes, graph, intRepNode, orb, addedAttributes);
+
+    addMetacardStringAttribute(NsiliConstants.SITUATION_TYPE, Isr.REPORT_SITUATION_TYPE, utils);
 
     return addedAttributes;
   }
@@ -1382,38 +1219,15 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_ENTITY;
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.TYPE), resultAttributes)) {
-      Attribute situationTypeAttr = metacard.getAttribute(Isr.REPORT_ENTITY_TYPE);
-      if (situationTypeAttr != null) {
-        String situationType = getEntityType(situationTypeAttr.getValue());
-        if (situationType != null) {
-          addStringAttribute(graph, entityPartNode, NsiliConstants.TYPE, situationType, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.TYPE));
-        }
-      }
-    }
+    DAGUtils utils =
+        new DAGUtils(
+            attribute, metacard, resultAttributes, graph, entityPartNode, orb, addedAttributes);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.NAME), resultAttributes)) {
-      Attribute entityNameAttr = metacard.getAttribute(Isr.REPORT_ENTITY_NAME);
-      if (entityNameAttr != null) {
-        String entityName = String.valueOf(entityNameAttr.getValue());
-        if (entityName != null) {
-          addStringAttribute(graph, entityPartNode, NsiliConstants.NAME, entityName, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.NAME));
-        }
-      }
-    }
+    addMetacardStringAttribute(NsiliConstants.TYPE, Isr.REPORT_ENTITY_TYPE, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.ALIAS), resultAttributes)) {
-      Attribute entityAliasAttr = metacard.getAttribute(Isr.REPORT_ENTITY_ALIAS);
-      if (entityAliasAttr != null) {
-        String entityAlias = getValueString(entityAliasAttr.getValues());
-        if (entityAlias != null) {
-          addStringAttribute(graph, entityPartNode, NsiliConstants.ALIAS, entityAlias, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.ALIAS));
-        }
-      }
-    }
+    addMetacardStringAttribute(NsiliConstants.NAME, Isr.REPORT_ENTITY_NAME, utils);
+
+    addMetacardStringAttribute(NsiliConstants.ALIAS, Isr.REPORT_ENTITY_ALIAS, utils);
 
     return addedAttributes;
   }
@@ -1435,41 +1249,36 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_EXPLOITATION_INFO;
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.LEVEL), resultAttributes)) {
-      Attribute exploitationLevelAttr = metacard.getAttribute(Isr.EXPLOITATION_LEVEL);
-      if (exploitationLevelAttr != null) {
-        Integer exploitationLevel = getInteger(exploitationLevelAttr.getValue());
-        if (exploitationLevel != null) {
-          addIntegerAttribute(
-              graph, exploitationInfoNode, NsiliConstants.LEVEL, exploitationLevel, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.LEVEL));
-        }
-      }
-    }
+    DAGUtils utils =
+        new DAGUtils(
+            attribute,
+            metacard,
+            resultAttributes,
+            graph,
+            exploitationInfoNode,
+            orb,
+            addedAttributes);
+
+    addMetacardIntegerAttribute(NsiliConstants.LEVEL, Isr.EXPLOITATION_LEVEL, utils);
 
     if (shouldAdd(buildAttr(attribute, NsiliConstants.AUTO_GENERATED), resultAttributes)) {
       Attribute autoGenAttr = metacard.getAttribute(Isr.EXPLOTATION_AUTO_GENERATED);
-      if (autoGenAttr != null) {
-        if (autoGenAttr.getValue() instanceof Boolean) {
-          Boolean autoGen = (Boolean) autoGenAttr.getValue();
-          if (autoGen != null) {
-            addBooleanAttribute(
-                graph, exploitationInfoNode, NsiliConstants.AUTO_GENERATED, autoGen, orb);
-            addedAttributes.add(buildAttr(attribute, NsiliConstants.AUTO_GENERATED));
-          }
+      if (autoGenAttr != null && autoGenAttr.getValue() instanceof Boolean) {
+        Boolean autoGen = (Boolean) autoGenAttr.getValue();
+        if (autoGen != null) {
+          addBooleanAttribute(
+              graph, exploitationInfoNode, NsiliConstants.AUTO_GENERATED, autoGen, orb);
+          addedAttributes.add(buildAttr(attribute, NsiliConstants.AUTO_GENERATED));
         }
       }
     }
 
+    // cannot use addMetacardStringAttribute because it doesn't call getSubjectiveQualityCode
     if (shouldAdd(buildAttr(attribute, NsiliConstants.SUBJ_QUALITY_CODE), resultAttributes)) {
       Attribute subQualCodeAttr = metacard.getAttribute(Isr.EXPLOITATION_SUBJECTIVE_QUALITY_CODE);
       if (subQualCodeAttr != null) {
         String subQualCodeStr = getSubjectiveQualityCode(subQualCodeAttr.getValue());
-        if (subQualCodeStr != null) {
-          addStringAttribute(
-              graph, exploitationInfoNode, NsiliConstants.SUBJ_QUALITY_CODE, subQualCodeStr, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.SUBJ_QUALITY_CODE));
-        }
+        attemptAddString(subQualCodeStr, NsiliConstants.SUBJ_QUALITY_CODE, utils);
       }
     }
 
@@ -1497,6 +1306,10 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_COMMON;
 
+    DAGUtils utils =
+        new DAGUtils(
+            attribute, metacard, resultAttributes, graph, commonNode, orb, addedAttributes);
+
     if (shouldAdd(buildAttr(attribute, NsiliConstants.IDENTIFIER_UUID), resultAttributes)) {
       String metacardId = getMetacardId(metacard);
       if (metacardId != null) {
@@ -1511,85 +1324,20 @@ public class ResultDAGConverter {
       addedAttributes.add(buildAttr(attribute, NsiliConstants.TYPE));
     }
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.DESCRIPTION_ABSTRACT), resultAttributes)) {
-      Attribute descAttr = metacard.getAttribute(Core.DESCRIPTION);
-      if (descAttr != null) {
-        String descString = getValueString(descAttr.getValues());
-        if (descString != null) {
-          addStringAttribute(
-              graph, commonNode, NsiliConstants.DESCRIPTION_ABSTRACT, descString, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.DESCRIPTION_ABSTRACT));
-        }
-      }
-    }
+    addMetacardValueStringAttribute(NsiliConstants.DESCRIPTION_ABSTRACT, Core.DESCRIPTION, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.LANGUAGE), resultAttributes)) {
-      Attribute languageAttr = metacard.getAttribute(Core.LANGUAGE);
-      if (languageAttr != null) {
-        String languageString = getValueString(languageAttr.getValues());
-        if (languageString != null) {
-          addStringAttribute(graph, commonNode, NsiliConstants.LANGUAGE, languageString, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.LANGUAGE));
-        }
-      }
-    }
+    addMetacardValueStringAttribute(NsiliConstants.LANGUAGE, Core.LANGUAGE, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.TARGET_NUMBER), resultAttributes)) {
-      Attribute targetNumAttr = metacard.getAttribute(Isr.TARGET_ID);
-      if (targetNumAttr != null) {
-        String targetNumString = String.valueOf(targetNumAttr.getValue());
-        if (targetNumString != null) {
-          addStringAttribute(graph, commonNode, NsiliConstants.TARGET_NUMBER, targetNumString, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.TARGET_NUMBER));
-        }
-      }
-    }
+    addMetacardStringAttribute(NsiliConstants.TARGET_NUMBER, Isr.TARGET_ID, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.SUBJECT_CATEGORY_TARGET), resultAttributes)) {
-      Attribute targetCatCodeAttr = metacard.getAttribute(Isr.TARGET_CATEGORY_CODE);
-      if (targetCatCodeAttr != null) {
-        String targetCatCodeString = String.valueOf(targetCatCodeAttr.getValue());
-        if (targetCatCodeString != null) {
-          addStringAttribute(
-              graph, commonNode, NsiliConstants.SUBJECT_CATEGORY_TARGET, targetCatCodeString, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.SUBJECT_CATEGORY_TARGET));
-        }
-      }
-    }
+    addMetacardStringAttribute(
+        NsiliConstants.SUBJECT_CATEGORY_TARGET, Isr.TARGET_CATEGORY_CODE, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.SOURCE), resultAttributes)) {
-      Attribute origSourceAttr = metacard.getAttribute(Isr.ORIGINAL_SOURCE);
-      if (origSourceAttr != null) {
-        String origSourceString = String.valueOf(origSourceAttr.getValue());
-        if (origSourceString != null) {
-          addStringAttribute(graph, commonNode, NsiliConstants.SOURCE, origSourceString, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.SOURCE));
-        }
-      }
-    }
+    addMetacardStringAttribute(NsiliConstants.SOURCE, Isr.ORIGINAL_SOURCE, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.IDENTIFIER_MISSION), resultAttributes)) {
-      Attribute missionIdAttr = metacard.getAttribute(Isr.MISSION_ID);
-      if (missionIdAttr != null) {
-        String missionIdString = String.valueOf(missionIdAttr.getValue());
-        if (missionIdString != null) {
-          addStringAttribute(
-              graph, commonNode, NsiliConstants.IDENTIFIER_MISSION, missionIdString, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.IDENTIFIER_MISSION));
-        }
-      }
-    }
+    addMetacardStringAttribute(NsiliConstants.IDENTIFIER_MISSION, Isr.MISSION_ID, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.IDENTIFIER_JC3IEDM), resultAttributes)) {
-      Attribute jc3IedmAttr = metacard.getAttribute(Isr.JC3IEDM_ID);
-      if (jc3IedmAttr != null) {
-        String jc3IedmStr = String.valueOf(jc3IedmAttr.getValue());
-        if (jc3IedmStr != null) {
-          addStringAttribute(graph, commonNode, NsiliConstants.IDENTIFIER_JC3IEDM, jc3IedmStr, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.IDENTIFIER_JC3IEDM));
-        }
-      }
-    }
+    addMetacardStringAttribute(NsiliConstants.IDENTIFIER_JC3IEDM, Isr.JC3IEDM_ID, utils);
 
     return addedAttributes;
   }
@@ -1607,6 +1355,10 @@ public class ResultDAGConverter {
     String attribute = parentAttrName + NsiliConstants.NSIL_COVERAGE;
 
     Node coverageNode = new Node(0, NodeType.ENTITY_NODE, NsiliConstants.NSIL_COVERAGE, any);
+
+    DAGUtils utils =
+        new DAGUtils(
+            attribute, metacard, resultAttributes, graph, coverageNode, orb, addedAttributes);
 
     if (metacardContainsGeoInfo(metacard)) {
       graph.addVertex(coverageNode);
@@ -1639,27 +1391,9 @@ public class ResultDAGConverter {
       }
     }
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.TEMPORAL_END), resultAttributes)) {
-      Attribute endAttr = metacard.getAttribute(DateTime.END);
-      if (endAttr != null) {
-        Date endDate = (Date) endAttr.getValue();
-        if (endDate != null) {
-          addDateAttribute(graph, coverageNode, NsiliConstants.TEMPORAL_END, endDate, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.TEMPORAL_END));
-        }
-      }
-    }
+    addMetacardDateAttribute(NsiliConstants.TEMPORAL_END, DateTime.END, utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.TEMPORAL_START), resultAttributes)) {
-      Attribute startAttr = metacard.getAttribute(DateTime.START);
-      if (startAttr != null) {
-        Date startDate = (Date) startAttr.getValue();
-        if (startDate != null) {
-          addDateAttribute(graph, coverageNode, NsiliConstants.TEMPORAL_START, startDate, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.TEMPORAL_START));
-        }
-      }
-    }
+    addMetacardDateAttribute(NsiliConstants.TEMPORAL_START, DateTime.START, utils);
 
     if (shouldAdd(buildAttr(attribute, NsiliConstants.SPATIAL_COUNTRY_CODE), resultAttributes)) {
       Attribute countryCodeAttr = metacard.getAttribute(Location.COUNTRY_CODE);
@@ -1692,49 +1426,24 @@ public class ResultDAGConverter {
 
     String attribute = parentAttrName + NsiliConstants.NSIL_RELATED_FILE;
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.CREATOR), resultAttributes)) {
-      Attribute pocAttr = metacard.getAttribute(Contact.CREATOR_NAME);
-      if (pocAttr != null) {
-        String pocString = String.valueOf(pocAttr.getValue());
-        if (StringUtils.isNotBlank(pocString)) {
-          addStringAttribute(graph, relatedFileNode, NsiliConstants.CREATOR, pocString, orb);
-        } else {
-          addStringAttribute(
-              graph, relatedFileNode, NsiliConstants.CREATOR, SystemInfo.getSiteName(), orb);
-        }
-      } else {
-        addStringAttribute(
-            graph, relatedFileNode, NsiliConstants.CREATOR, SystemInfo.getSiteName(), orb);
-      }
-      addedAttributes.add(buildAttr(attribute, NsiliConstants.CREATOR));
-    }
+    DAGUtils utils =
+        new DAGUtils(
+            attribute, metacard, resultAttributes, graph, relatedFileNode, orb, addedAttributes);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.DATE_TIME_DECLARED), resultAttributes)) {
-      if (metacard.getCreatedDate() != null) {
-        addDateAttribute(
-            graph,
-            relatedFileNode,
-            NsiliConstants.DATE_TIME_DECLARED,
-            metacard.getCreatedDate(),
-            orb);
-      } else {
-        addDateAttribute(
-            graph, relatedFileNode, NsiliConstants.DATE_TIME_DECLARED, new Date(), orb);
-      }
-      addedAttributes.add(buildAttr(attribute, NsiliConstants.DATE_TIME_DECLARED));
-    }
+    foo1(utils);
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.EXTENT), resultAttributes)) {
-      if (metacard.getThumbnail() != null) {
-        try {
-          Double resSize = (double) metacard.getThumbnail().length;
-          Double resSizeMB = convertToMegabytes(resSize);
-          addDoubleAttribute(graph, relatedFileNode, NsiliConstants.EXTENT, resSizeMB, orb);
-          addedAttributes.add(buildAttr(attribute, NsiliConstants.EXTENT));
-        } catch (NumberFormatException nfe) {
-          LOGGER.debug(
-              "Couldn't convert the thumbnail size to double: {}", metacard.getResourceSize());
-        }
+    bar1(utils);
+
+    if (shouldAdd(buildAttr(attribute, NsiliConstants.EXTENT), resultAttributes)
+        && metacard.getThumbnail() != null) {
+      try {
+        Double resSize = (double) metacard.getThumbnail().length;
+        Double resSizeMB = convertToMegabytes(resSize);
+        addDoubleAttribute(graph, relatedFileNode, NsiliConstants.EXTENT, resSizeMB, orb);
+        addedAttributes.add(buildAttr(attribute, NsiliConstants.EXTENT));
+      } catch (NumberFormatException nfe) {
+        LOGGER.debug(
+            "Couldn't convert the thumbnail size to double: {}", metacard.getResourceSize());
       }
     }
 
@@ -1759,18 +1468,7 @@ public class ResultDAGConverter {
       }
     }
 
-    if (shouldAdd(buildAttr(attribute, NsiliConstants.IS_FILE_LOCAL), resultAttributes)) {
-      String siteName = SystemInfo.getSiteName();
-
-      boolean fileLocal = true;
-      if (siteName != null
-          && metacard.getSourceId() != null
-          && !siteName.equals(metacard.getSourceId())) {
-        fileLocal = false;
-      }
-      addBooleanAttribute(graph, relatedFileNode, NsiliConstants.IS_FILE_LOCAL, fileLocal, orb);
-      addedAttributes.add(buildAttr(attribute, NsiliConstants.IS_FILE_LOCAL));
-    }
+    attemptAddBooleanProductLocal(NsiliConstants.IS_FILE_LOCAL, utils);
 
     if (shouldAdd(buildAttr(attribute, NsiliConstants.FILE_TYPE), resultAttributes)) {
       addStringAttribute(
@@ -1847,7 +1545,7 @@ public class ResultDAGConverter {
   }
 
   public static void addAnyAttribute(
-      DirectedAcyclicGraph<Node, Edge> graph, Node parentNode, String key, Any any, ORB orb) {
+      DirectedAcyclicGraph<Node, Edge> graph, Node parentNode, String key, Any any) {
     Node node = new Node(0, NodeType.ATTRIBUTE_NODE, key, any);
     graph.addVertex(node);
     graph.addEdge(parentNode, node);
@@ -1938,14 +1636,20 @@ public class ResultDAGConverter {
         new TraversalListener<Node, Edge>() {
           @Override
           public void connectedComponentFinished(
-              ConnectedComponentTraversalEvent connectedComponentTraversalEvent) {}
+              ConnectedComponentTraversalEvent connectedComponentTraversalEvent) {
+            // part of interface but not needed in this class
+          }
 
           @Override
           public void connectedComponentStarted(
-              ConnectedComponentTraversalEvent connectedComponentTraversalEvent) {}
+              ConnectedComponentTraversalEvent connectedComponentTraversalEvent) {
+            // part of interface but not needed in this class
+          }
 
           @Override
-          public void edgeTraversed(EdgeTraversalEvent<Node, Edge> edgeTraversalEvent) {}
+          public void edgeTraversed(EdgeTraversalEvent<Node, Edge> edgeTraversalEvent) {
+            // part of interface but not needed in this class
+          }
 
           @Override
           public void vertexTraversed(VertexTraversalEvent<Node> vertexTraversalEvent) {
@@ -1959,20 +1663,20 @@ public class ResultDAGConverter {
           public void vertexFinished(VertexTraversalEvent<Node> vertexTraversalEvent) {
             Node node = vertexTraversalEvent.getVertex();
             if (node.node_type == NodeType.ATTRIBUTE_NODE) {
-              String attribute = "";
+              StringBuilder attribute = new StringBuilder();
               int currEntry = 0;
               int size = nodeStack.size();
               for (String nodeEntry : nodeStack) {
-                attribute += nodeEntry;
+                attribute.append(nodeEntry);
                 if (currEntry < (size - 1)) {
-                  attribute += ":";
+                  attribute.append(":");
                 } else {
-                  attribute += ".";
+                  attribute.append(".");
                 }
                 currEntry++;
               }
-              attribute += node.attribute_name;
-              attributes.put(attribute, CorbaUtils.getNodeValue(node.value));
+              attribute.append(node.attribute_name);
+              attributes.put(attribute.toString(), CorbaUtils.getNodeValue(node.value));
             } else {
               int lastIdx = nodeStack.size() - 1;
               nodeStack.remove(lastIdx);
@@ -2035,29 +1739,23 @@ public class ResultDAGConverter {
   private static boolean shouldAdd(String attributeName, List<String> resultAttributes) {
     boolean shouldAddAttribute = false;
 
-    if (resultAttributes != null && !resultAttributes.isEmpty()) {
-      if (resultAttributes.contains(attributeName)) {
-        shouldAddAttribute = true;
-      } else {
-        if (attributeName.lastIndexOf(':') != -1) {
-          String nonScopeAttr = attributeName.substring(attributeName.lastIndexOf(':') + 1);
-          if (resultAttributes.contains(nonScopeAttr)) {
-            shouldAddAttribute = true;
-          }
-        }
+    shouldAddAttribute =
+        (resultAttributes == null || resultAttributes.isEmpty())
+            || resultAttributes.contains(attributeName);
 
-        if (!shouldAddAttribute) {
-          int lastDot = attributeName.lastIndexOf(".");
-          if (lastDot != -1) {
-            String simpleAttrName = attributeName.substring(lastDot + 1);
-            if (resultAttributes.contains(simpleAttrName)) {
-              shouldAddAttribute = true;
-            }
-          }
+    if (!shouldAddAttribute) {
+      if (attributeName.lastIndexOf(':') != -1) {
+        String nonScopeAttr = attributeName.substring(attributeName.lastIndexOf(':') + 1);
+        shouldAddAttribute = resultAttributes.contains(nonScopeAttr);
+      }
+
+      if (!shouldAddAttribute) {
+        int lastDot = attributeName.lastIndexOf(".");
+        if (lastDot != -1) {
+          String simpleAttrName = attributeName.substring(lastDot + 1);
+          shouldAddAttribute = resultAttributes.contains(simpleAttrName);
         }
       }
-    } else {
-      shouldAddAttribute = true;
     }
 
     if (!shouldAddAttribute) {

@@ -2116,7 +2116,7 @@ public class DAGConverterTest {
     Any spatialCoverage = orb.create_any();
     RectangleHelper.insert(spatialCoverage, rectangle);
     ResultDAGConverter.addAnyAttribute(
-        graph, coverageNode, NsiliConstants.SPATIAL_GEOGRAPHIC_REF_BOX, spatialCoverage, orb);
+        graph, coverageNode, NsiliConstants.SPATIAL_GEOGRAPHIC_REF_BOX, spatialCoverage);
 
     ResultDAGConverter.addStringAttribute(
         graph, coverageNode, NsiliConstants.ADVANCED_GEOSPATIAL, WKT_LOCATION, orb);
